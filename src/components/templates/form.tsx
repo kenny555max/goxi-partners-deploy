@@ -61,39 +61,7 @@ const RegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                 headers: {
                     "Content-type": "application/json"
                 },
-                body: JSON.stringify({
-                    "name": formData.fullName,
-                    "email": formData.email,
-                    "password": formData.password,
-                    "password_confirmation": formData.confirm_password,
-                    "phone": phone,
-                    "address": "123 Main Street, City, Country",
-                    "date_of_birth": "1990-01-01",
-                    "gender": "male",
-                    "marital_status": "single",
-                    "national_id": "4324mbnmgmdf",
-                    "current_plan": "Basic Health Plan",
-                    "active_plans": ["Basic Health Plan", "Premium Health Plan"],
-                    "plan_created_at": "2024-01-01T00:00:00",
-                    "plan_expires_at": "2025-01-01T00:00:00",
-                    "agent_id": 1,
-                    "product_type": "Health Insurance",
-                    "plan_duration": "1 year",
-                    "is_plan_updated": false,
-                    "policy_details": {
-                        "coverage_type": "Comprehensive",
-                        "coverage_limit": 500000,
-                        "deductible": 5000
-                    },
-                    "policy_number": "POLICY12345678",
-                    "policy_start_date": "2024-01-01T00:00:00",
-                    "policy_end_date": "2025-01-01T00:00:00",
-                    "beneficiary_name": "Jane Doe",
-                    "beneficiary_relationship": "Spouse",
-                    "premium_amount": 500.00,
-                    "sum_assured": 500000.00,
-                    "is_policy_active": true
-                })
+                body: JSON.stringify({})
             })
 
             const data = await response.json();

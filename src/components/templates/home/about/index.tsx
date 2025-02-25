@@ -50,7 +50,7 @@ const AboutSection: React.FC = () => {
     const router = useRouter();
 
     return (
-        <div id="about" className="py-8">
+        <div id="about" className="py-24">
             <div className="mx-auto w-full max-w-[80%] lg:max-w-[60%]">
                 {/* CTA Section */}
                 <div className="flex lg:flex-row step-cta flex-col gap-4 border-2 p-6 lg:items-center border-[#e6e6e6] justify-between">
@@ -63,7 +63,7 @@ const AboutSection: React.FC = () => {
                         </div>
                     </div>
                     <div>
-                        <button onClick={() => router.push("/login")} className="bg-custom-green px-6 py-3 !rounded-md !hover:text-white !text-white font-semibold transition-colors">
+                        <button onClick={() => router.push("/login")} className="bg-custom-green px-6 py-3 !rounded-[20px] !hover:text-white !text-white font-semibold transition-colors">
                             Submit Contact
                         </button>
                     </div>
