@@ -1,6 +1,5 @@
 'use client';
 import React, {memo, useEffect, useState} from "react";
-import {useRouter} from "next/navigation";
 import MaxWidthWrapper from "@/components/container/max-width-wrapper";
 import TestimonialSlider from "@/components/templates/home/testimonials/testimonial-slider";
 import Image, {StaticImageData} from 'next/image';
@@ -71,9 +70,6 @@ TestimonialCard.displayName = 'SliderContentOne';
 const TestimonialComp = () => {
     // State to manage slider activity
     const [isActive, setisActive] = useState(false);
-
-    // Next.js router for navigation
-    const router = useRouter();
 
     // Array of testimonial data
     const contents = [

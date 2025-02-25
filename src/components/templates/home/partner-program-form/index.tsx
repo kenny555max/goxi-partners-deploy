@@ -127,7 +127,7 @@ export default function PartnerProgramForm() {
                             <div className="bg-green-50 p-4 mb-6 border border-green-200 rounded-[8px]">
                                 <div className="text-green-800 font-medium">Success!</div>
                                 <div className="text-green-700">
-                                    Your call has been scheduled successfully. We'll get back to you soon.
+                                    Your call has been scheduled successfully. We ll get back to you soon.
                                 </div>
                             </div>
                         )}
