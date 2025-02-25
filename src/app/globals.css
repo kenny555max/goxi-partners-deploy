@@ -16,7 +16,7 @@
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background: #ffffff !important;
   font-family: Arial, Helvetica, sans-serif;
 }
 .red-yellow-gradient-background {
@@ -26,6 +26,9 @@ body {
   background: linear-gradient(to right, #E30613, #FFC200);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+.bg-cover{
+  background-position: center;
 }
 .bg-cover:after{
   content: "";
