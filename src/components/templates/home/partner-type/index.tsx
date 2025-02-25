@@ -14,7 +14,7 @@ const PartnerCard: React.FC<PartnerCardProps> = ({ title, description, buttonTex
         <p className="text-[#333333] mb-6 flex-grow">{description}</p>
         <Link
             href={href}
-            className="text-[#008cad] hover:text-[#007a96] font-medium inline-flex items-center transition-colors"
+            className="rounded-[20px] bg-custom-green text-white w-full text-center py-2 flex !hover:text-white !hover:bg-custom-green justify-center items-center font-medium transition-colors"
         >
             {buttonText} →
         </Link>
@@ -27,19 +27,19 @@ const PartnerTypeSection: React.FC = () => {
             title: "Individual / SME",
             description: "Are you an experienced and highly skilled professional? Leverage your network connections. Register and close deals to receive commission on sales.",
             buttonText: "Become a Individual Partner",
-            href: "#"
+            href: "/register"
         },
         {
             title: "Microfinance Institutions MFI",
             description: "We partner with Microfinance Banks, Micro Credit companies, Micro Leasing companies, and Finance Houses to develop unique Microinsurance products for your clients.",
             buttonText: "Become a MFI Partner",
-            href: "#"
+            href: "/register"
         },
         {
             title: "Cooperative Society",
             description: "We partner with cooperatives to distribute microinsurance products for expanding financial inclusion and providing underserved populations with essential risk protection.",
             buttonText: "Become a Cooperative Partner",
-            href: "#"
+            href: "/register"
         }
     ];
 

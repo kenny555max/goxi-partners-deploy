@@ -8,6 +8,7 @@ import Footer from "@/components/templates/home/footer";
 import TopHeader from "@/components/templates/home/top-header";
 import BottomHeader from "@/components/templates/home/bottom-header";
 import Testimonials from "@/components/templates/home/testimonials/testimonials";
+import PartnerProgramForm from "@/components/templates/home/partner-program-form";
 
 export default function HomePage(){
     return(
@@ -21,6 +22,7 @@ export default function HomePage(){
             <PartnerTypeSection />
             <PartnerCtaSection />
             <FaqSection />
+            <PartnerProgramForm />
             <Footer />
         </div>
     );

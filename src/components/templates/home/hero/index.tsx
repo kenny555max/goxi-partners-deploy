@@ -45,7 +45,10 @@ export const SliderContentOne = memo(() => {
                     animate={{opacity: 1, y: 0}}
                     transition={{duration: 0.6, delay: 0.2}}
                 >
-                    {"Goxi MicroInsurance targets low-income people and micro and small enterprises that are highly vulnerable. We are Nigeria's first stand-alone Microinsurance company."}
+                    {"Goxi MicroInsurance targets low-income\n" +
+                        "people and micro and small enterprises\n" +
+                        "that are highly vulnerable. We are Nigeria's\n" +
+                        "first stand-alone Microinsurance company. "}
                 </motion.p>
                 <motion.button
                     onClick={() => router.push("/login")}
@@ -115,10 +118,11 @@ export const SliderContentTwo = memo(() => {
                     animate={{opacity: 1, y: 0}}
                     transition={{duration: 0.6}}
                 >
-                <span>
-                    {"Secure Your Future"}{" "}
+                    <span
+                        className="bg-gradient-to-r from-custom-red to-custom-yellow bg-clip-text text-transparent">Partner</span>{" "}
+                    <span>
+                    {"With Goxi"}
                 </span>
-                    <span className="bg-gradient-to-r from-custom-red to-custom-yellow bg-clip-text text-transparent">With Goxi Insurance</span>{" "}
                 </motion.h1>
                 <motion.p
                     className="text-[16px] pb-10 w-[800px] md:text-[20px] font-normal text-white/90 mt-4 max-w-full sm:max-w-[90%] lg:max-w-[80%]"
@@ -126,7 +130,10 @@ export const SliderContentTwo = memo(() => {
                     animate={{opacity: 1, y: 0}}
                     transition={{duration: 0.6, delay: 0.2}}
                 >
-                    {"Join thousands of satisfied partners who trust GOXI for their insurance needs. Our comprehensive coverage ensures peace of mind for you and your clients."}
+                    {"Goxi MicroInsurance targets low-income\n" +
+                        "people and micro and small enterprises\n" +
+                        "that are highly vulnerable. We are Nigeria's\n" +
+                        "first stand-alone Microinsurance company. "}
                 </motion.p>
                 <motion.button
                     onClick={() => router.push("/login")}
@@ -135,9 +142,39 @@ export const SliderContentTwo = memo(() => {
                     animate={{opacity: 1, y: 0}}
                     transition={{duration: 0.6, delay: 0.2}}
                 >
-                    <span>Leran More</span>
+                    <span>Become A Partner</span>
                     <IoMdArrowForward className="w-[24px] h-[24px]" />
                 </motion.button>
+                <motion.div
+                    initial={{opacity: 0, y: 20}}
+                    animate={{opacity: 1, y: 0}}
+                    transition={{duration: 0.6}}
+                    className="hero-icons mt-4">
+                    <div className="icon-card">
+                        <div className="icon-img">
+                            <img src="/assets/green-naira.png" alt="naira-icon"/>
+                        </div>
+                        <span>Micro Loan Protection</span>
+                    </div>
+                    <div className="icon-card">
+                        <div className="icon-img">
+                            <img src="/assets/hand-plus.png" alt="hand-icon"/>
+                        </div>
+                        <span>Cooperative Insurance</span>
+                    </div>
+                    <div className="icon-card">
+                        <div className="icon-img">
+                            <img src="/assets/bike.png" alt="bike-icon"/>
+                        </div>
+                        <span>Tricycle/Okada Business Insurance</span>
+                    </div>
+                    <div className="icon-card">
+                        <div className="icon-img">
+                            <img src="/assets/tractor.png" alt="tractor-icon"/>
+                        </div>
+                        <span>Agro Micro Insurance</span>
+                    </div>
+                </motion.div>
             </MaxWidthWrapper>
         </div>
     )
@@ -160,10 +197,11 @@ export const SliderContentThree = memo(() => {
                     animate={{opacity: 1, y: 0}}
                     transition={{duration: 0.6}}
                 >
-                <span>
-                    {"Your Partner In"}{" "}
+                    <span
+                        className="bg-gradient-to-r from-custom-red to-custom-yellow bg-clip-text text-transparent">Partner</span>{" "}
+                    <span>
+                    {"With Goxi"}
                 </span>
-                    <span className="bg-gradient-to-r from-custom-red to-custom-yellow bg-clip-text text-transparent">Protection and Growth</span>{" "}
                 </motion.h1>
                 <motion.p
                     className="text-[16px] pb-10 w-[800px] md:text-[20px] font-normal text-white/90 mt-4 max-w-full sm:max-w-[90%] lg:max-w-[80%]"
@@ -171,7 +209,10 @@ export const SliderContentThree = memo(() => {
                     animate={{opacity: 1, y: 0}}
                     transition={{duration: 0.6, delay: 0.2}}
                 >
-                    {"GOXI Microinsurance ensures you stay protected while pursuing your dreams. Coverage that evolves with you."}
+                    {"Goxi MicroInsurance targets low-income\n" +
+                        "people and micro and small enterprises\n" +
+                        "that are highly vulnerable. We are Nigeria's\n" +
+                        "first stand-alone Microinsurance company. "}
                 </motion.p>
                 <motion.button
                     onClick={() => router.push("/login")}
@@ -180,9 +221,39 @@ export const SliderContentThree = memo(() => {
                     animate={{opacity: 1, y: 0}}
                     transition={{duration: 0.6, delay: 0.2}}
                 >
-                    <span>Join Us Now</span>
+                    <span>Become A Partner</span>
                     <IoMdArrowForward className="w-[24px] h-[24px]" />
                 </motion.button>
+                <motion.div
+                    initial={{opacity: 0, y: 20}}
+                    animate={{opacity: 1, y: 0}}
+                    transition={{duration: 0.6}}
+                    className="hero-icons mt-4">
+                    <div className="icon-card">
+                        <div className="icon-img">
+                            <img src="/assets/green-naira.png" alt="naira-icon"/>
+                        </div>
+                        <span>Micro Loan Protection</span>
+                    </div>
+                    <div className="icon-card">
+                        <div className="icon-img">
+                            <img src="/assets/hand-plus.png" alt="hand-icon"/>
+                        </div>
+                        <span>Cooperative Insurance</span>
+                    </div>
+                    <div className="icon-card">
+                        <div className="icon-img">
+                            <img src="/assets/bike.png" alt="bike-icon"/>
+                        </div>
+                        <span>Tricycle/Okada Business Insurance</span>
+                    </div>
+                    <div className="icon-card">
+                        <div className="icon-img">
+                            <img src="/assets/tractor.png" alt="tractor-icon"/>
+                        </div>
+                        <span>Agro Micro Insurance</span>
+                    </div>
+                </motion.div>
             </MaxWidthWrapper>
         </div>
     )

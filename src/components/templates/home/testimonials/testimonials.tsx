@@ -109,9 +109,10 @@ const TestimonialComp = () => {
     },[]);
 
     return (
-        <MaxWidthWrapper className="py-[50px]">
+        <div className="bg-gray-200">
+            <MaxWidthWrapper className="py-[50px]">
             <div className="inner-container xl:w-[80%] w-full mx-auto">
-                {/*CTA*/}
+                {/*CTA
                 <div className="flex lg:flex-row bg-gradient-custom flex-col gap-4 border-[2px] p-6 lg:items-center border-[#e6e6e6] justify-between">
                     <div className="flex-1 flex flex-col gap-1">
                         <div className="text-white font-semibold text-[20px]">MicroInsurance Made Simple</div>
@@ -126,21 +127,19 @@ const TestimonialComp = () => {
                         </button>
                     </div>
                 </div>
-
+                */}
                 <div className="mt-[50px]">
-                    <div className="text-[#333333] font-bold text-[26px] text-center">
-                        Join Thousands <span
-                        className="bg-gradient-to-r from-custom-red to-custom-yellow bg-clip-text text-transparent">Who Trust GOXI</span>
+                    <div className="text-[#333333] font-bold text-[34px] text-center">
+                         <span className="bg-gradient-to-r from-custom-red to-custom-yellow bg-clip-text text-transparent">Partner</span>
+                        {" "}<span>Testimonials</span>
                     </div>
-                    <div className="text-[#333333] opacity-70 text-center font-[500] w-full md:w-[500px] mx-auto">
-                        See why individuals and small business owners rely on GOXI for reliable and affordable microinsurance.
-                    </div>
-                    <div className="mt-[40px]">
+                    <div className="mt-[20px]">
                         <TestimonialSlider items={contents} isActive={isActive} />
                     </div>
                 </div>
             </div>
         </MaxWidthWrapper>
+        </div>
     );
 };
 

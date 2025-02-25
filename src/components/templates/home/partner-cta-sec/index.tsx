@@ -56,7 +56,7 @@ const PartnerCtaSection: React.FC = () => {
                             Help your clients scale by transforming Agency, MFI or Cooperative service into an insurance revenue generator
                         </div>
                     </div>
-                    <div className="bg-white p-1 rounded">
+                    <div className="bg-white p-1 rounded-[20px]">
                         <Link href="/login">
                             <button className="px-6 py-2 font-semibold bg-gradient-to-r from-[#008C4D] to-[#FFD700] bg-clip-text text-transparent hover:opacity-80 transition-opacity">
                                 Become A Partner
