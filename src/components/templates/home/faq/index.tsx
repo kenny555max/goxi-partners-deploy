@@ -46,11 +46,11 @@ const FaqSection = () => {
                 {faqs.map((faq, index) => (
                     <div
                         key={index}
-                        className={`border border-gray-200 rounded-lg overflow-hidden ${activeIndex === index ? "!bg-[#ffc200]" : ""}`}
+                        className={`border border-gray-200 rounded-lg overflow-hidden`}
                     >
                         <button
                             onClick={() => toggleFaq(index)}
-                            className="w-full px-6 py-4 flex justify-between items-center bg-white hover:bg-gray-50 transition-colors duration-200"
+                            className="w-full px-6 py-4 flex justify-between items-center transition-colors duration-200"
                         >
                               <span className="font-medium text-left text-gray-800">
                                 {faq.question}
@@ -64,10 +64,10 @@ const FaqSection = () => {
 
                         <div
                             className={`overflow-hidden transition-all duration-200 ${
-                                activeIndex === index ? 'max-h-40 bg-[#ffc200]' : 'max-h-0'
+                                activeIndex === index ? 'max-h-40 bg-gradient-to-r from-custom-red to-custom-yellow text-white' : 'max-h-0'
                             }`}
                         >
-                            <p className="px-6 py-4 text-gray-600 bg-gray-50">
+                            <p className="px-6 py-4">
                                 {faq.answer}
                             </p>
                         </div>
