@@ -5,12 +5,16 @@ interface FormData {
     firstName: string;
     lastName: string;
     email: string;
+    phone: string;
+    message: string;
 }
 
 interface FormErrors {
     firstName?: string;
     lastName?: string;
     email?: string;
+    phone?: string;
+    message?: string;
 }
 
 export default function PartnerProgramForm() {
@@ -18,6 +22,8 @@ export default function PartnerProgramForm() {
         firstName: "",
         lastName: "",
         email: "",
+        phone: "",
+        message: ""
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -51,7 +57,7 @@ export default function PartnerProgramForm() {
         return isValid;
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         setFormErrors(prev => ({ ...prev, [name]: undefined }));
@@ -87,7 +93,9 @@ export default function PartnerProgramForm() {
             setFormData({
                 firstName: "",
                 lastName: "",
-                email: ""
+                email: "",
+                phone: "",
+                message: ""
             });
         } catch (error) {
             setSubmitStatus('error');
@@ -181,6 +189,34 @@ export default function PartnerProgramForm() {
                                 />
                                 {formErrors.email && (
                                     <p className="mt-1 text-red-500 text-sm">{formErrors.email}</p>
+                                )}
+                            </div>
+
+                            <div>
+                                <input
+                                    type="text"
+                                    name="phone"
+                                    placeholder="Work Phone Number"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    className={`w-full p-3 border ${formErrors.phone ? 'border-red-500' : 'border-gray-300'} rounded-[8px] shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500`}
+                                />
+                                {formErrors.phone && (
+                                    <p className="mt-1 text-red-500 text-sm">{formErrors.phone}</p>
+                                )}
+                            </div>
+
+                            <div>
+                                <textarea
+                                    name="message"
+                                    placeholder="Leave A Message"
+                                    value={formData.message}
+                                    onChange={handleChange}
+                                    rows={4}
+                                    className={`w-full p-3 border ${formErrors.message ? 'border-red-500' : 'border-gray-300'} rounded-[8px] shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500`}
+                                ></textarea>
+                                {formErrors.message && (
+                                    <p className="mt-1 text-red-500 text-sm">{formErrors.message}</p>
                                 )}
                             </div>
 

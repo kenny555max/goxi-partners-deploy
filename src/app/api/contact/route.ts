@@ -27,7 +27,7 @@ export async function POST(request: Request) {
         // Configure email
         const mailOptions = {
             from: email,
-            to: 'oyedepokehinde2016@gmail.com',//'info@goximicroinsurance.com',
+            to: 'info@goximicroinsurance.com',
             subject: `New Contact Form Submission from ${firstName} ${lastName}`,
             html: `
                 <h2>New Contact Form Submission</h2>
