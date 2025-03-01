@@ -4,7 +4,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import Input from "./input";
 import AuthHero from "./auth-hero";
 import Link from "next/link";
-import {usePathname, useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 // Hero Section Props
@@ -21,17 +21,26 @@ type AuthFormProps = {
 };
 
 // Main Form Component
-const RegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
-    const pathname = usePathname();
+const AgentRegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
     const [error, setError] = useState("");
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = React.useState({
         fullName: '',
         email: '',
-        confirm_password: '',
-        phone: '',
-        password: ''
+        phone1: '',
+        phone2: '',
+        address: '',
+        area: '',
+        city: '',
+        state: '',
+        faxNo: '',
+        insPerson: '',
+        finPerson: '',
+        accountNo: '',
+        bankname: '',
+        password: '',
+        confirm_password: ''
     });
 
     const [showPassword, setShowPassword] = React.useState(false);
@@ -45,10 +54,15 @@ const RegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
     };
 
     const handleSubmit = async () => {
-        const { email, fullName, phone, password, confirm_password } = formData;
+        const { fullName, email, phone1, address, password, confirm_password } = formData;
 
-        if (!email || !fullName || !phone || !password || !confirm_password){
-            setError("Fill all fields");
+        if (!fullName || !email || !phone1 || !address || !password || !confirm_password) {
+            setError("Fill all required fields");
+            return;
+        }
+
+        if (password !== confirm_password) {
+            setError("Passwords do not match");
             return;
         }
 
@@ -56,26 +70,61 @@ const RegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
             setIsLoading(true);
             setError("");
 
-            const response = await fetch("/api/register", {
+            // First authenticate to get token
+            const authResponse = await fetch("/api/auth", {
+                method: "POST"
+            });
+
+            if (!authResponse.ok) {
+                throw new Error("Authentication failed");
+            }
+
+            // Then create the agent
+            const agentData = {
+                unitID: Math.random().toString(36).substring(2, 10), // Generate a random ID
+                agent: formData.fullName,
+                address: formData.address,
+                area: formData.area || "",
+                city: formData.city || "",
+                state: formData.state || "",
+                phone1: formData.phone1,
+                phone2: formData.phone2 || "",
+                faxNo: formData.faxNo || "",
+                email: formData.email,
+                insPerson: formData.insPerson || "",
+                finPerson: formData.finPerson || "",
+                balance: 0,
+                creditLimit: 0,
+                comRate: 0,
+                remark: "",
+                accountNo: formData.accountNo || "",
+                bankname: formData.bankname || "",
+                tag: "",
+                submittedBy: formData.fullName,
+                modifiedBy: ""
+            };
+
+            const response = await fetch("/api/agents", {
                 method: "POST",
                 headers: {
-                    "Content-type": "application/json"
+                    "Content-Type": "application/json"
                 },
-                body: JSON.stringify({})
-            })
+                body: JSON.stringify(agentData)
+            });
 
             const data = await response.json();
 
-            if (!response.ok){
-                throw { message: data?.error || "Failed to create user" }
+            if (!response.ok) {
+                throw { message: data?.error || "Failed to create agent" }
             }
 
-            console.log(data);
-            router.push("/admin/home");
-        }catch(error){
-            console.log(error);
-            setError("Failed to create user");
-        }finally{
+            console.log("Agent created successfully:", data);
+
+            router.push("/thank-you");
+        } catch (error) {
+           console.log(error);
+            setError("Failed to create agent. Please check your network and try again.");
+        } finally {
             setIsLoading(false);
         }
     }
@@ -89,40 +138,95 @@ const RegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                         <Image src={"/assets/logo.png"} alt={"goxi-logo"} width={100} height={100} />
                     </Link>
 
-                    <h2 className="text-xl font-semibold mt-8 mb-6">Lets get you started</h2>
+                    <h2 className="text-xl font-semibold mt-8 mb-6">Register as an Agent</h2>
 
                     {error && (
                         <div className="text-destructive text-red-500 rounded-[10px] mb-2 bg-pink-200 p-[10px] text-[15px] font-[500]">{error}</div>
                     )}
 
                     <div className="space-y-4 form-scroll h-[300px] overflow-y-scroll">
-                        {pathname?.includes("/register") && <Input
-                            label="Full name"
+                        <Input
+                            label="Full Name *"
                             type="text"
                             name="fullName"
                             value={formData.fullName}
                             onChange={handleChange}
-                        />}
+                        />
 
                         <Input
-                            label="Email address"
+                            label="Email Address *"
                             type="email"
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
                         />
 
-                        {pathname?.includes("/register") && <Input
-                            label="Phone number"
+                        <Input
+                            label="Primary Phone *"
                             type="tel"
-                            name="phone"
-                            value={formData.phone}
+                            name="phone1"
+                            value={formData.phone1}
                             onChange={handleChange}
-                            icon={<span className="text-sm text-gray-500">+1</span>}
-                        />}
+                        />
 
                         <Input
-                            label="Password"
+                            label="Secondary Phone"
+                            type="tel"
+                            name="phone2"
+                            value={formData.phone2}
+                            onChange={handleChange}
+                        />
+
+                        <Input
+                            label="Address *"
+                            type="text"
+                            name="address"
+                            value={formData.address}
+                            onChange={handleChange}
+                        />
+
+                        <Input
+                            label="Area"
+                            type="text"
+                            name="area"
+                            value={formData.area}
+                            onChange={handleChange}
+                        />
+
+                        <Input
+                            label="City"
+                            type="text"
+                            name="city"
+                            value={formData.city}
+                            onChange={handleChange}
+                        />
+
+                        <Input
+                            label="State"
+                            type="text"
+                            name="state"
+                            value={formData.state}
+                            onChange={handleChange}
+                        />
+
+                        <Input
+                            label="Bank Name"
+                            type="text"
+                            name="bankname"
+                            value={formData.bankname}
+                            onChange={handleChange}
+                        />
+
+                        <Input
+                            label="Account Number"
+                            type="text"
+                            name="accountNo"
+                            value={formData.accountNo}
+                            onChange={handleChange}
+                        />
+
+                        <Input
+                            label="Password *"
                             type={showPassword ? "text" : "password"}
                             name="password"
                             value={formData.password}
@@ -138,40 +242,36 @@ const RegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                             }
                         />
 
-                        {pathname?.includes("/register") && (
-                            <Input
-                                label="Confirm Password"
-                                type={showPassword ? "text" : "password"}
-                                name="confirm_password"
-                                value={formData.confirm_password}
-                                onChange={handleChange}
-                                icon={
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="focus:outline-none"
-                                    >
-                                        {showPassword ? <EyeOff size={20}/> : <Eye size={20}/>}
-                                    </button>
-                                }
-                            />
-                        )}
+                        <Input
+                            label="Confirm Password *"
+                            type={showPassword ? "text" : "password"}
+                            name="confirm_password"
+                            value={formData.confirm_password}
+                            onChange={handleChange}
+                            icon={
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="focus:outline-none"
+                                >
+                                    {showPassword ? <EyeOff size={20}/> : <Eye size={20}/>}
+                                </button>
+                            }
+                        />
+
                         <button
                             type="button"
                             onClick={handleSubmit}
                             className="w-full bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition-colors"
                         >
-                            {pathname?.includes("/login") ?
-                                isLoading ? "Loading..." : "Sign In" :
-                                isLoading ? "Loading..." : "Sign Up"
-                            }
+                            {isLoading ? "Loading..." : "Register as Agent"}
                         </button>
                     </div>
 
                     <p className="mt-4 text-center text-sm text-gray-600">
-                        Already a user?{' '}
-                        <Link href={pathname?.includes("/login") ? "/register" : "/login"} className="text-orange-500 hover:text-orange-600">
-                            {pathname?.includes("/login") ? "register" : "login"}
+                        Already registered?{' '}
+                        <Link href="/login" className="text-orange-500 hover:text-orange-600">
+                            Login
                         </Link>
                     </p>
                 </div>
@@ -183,4 +283,4 @@ const RegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
     );
 };
 
-export default RegistrationForm;
+export default AgentRegistrationForm;
