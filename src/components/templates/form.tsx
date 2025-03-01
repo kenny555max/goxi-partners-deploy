@@ -121,9 +121,9 @@ const AgentRegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
             console.log("Agent created successfully:", data);
 
             router.push("/thank-you");
-        } catch (error: any) {
-            console.error(error);
-            setError(error.message || "Failed to create agent");
+        } catch (error) {
+           console.log(error);
+            setError("Failed to create agent. Please check your network and try again.");
         } finally {
             setIsLoading(false);
         }

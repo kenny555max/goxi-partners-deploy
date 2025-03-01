@@ -6,7 +6,9 @@ const API_URL = "http://microlifetestapi.newgibsonline.com";
 export async function POST(request: NextRequest) {
     try {
         // Check if token exists in cookies
-        const token = cookies().get('goxi-token');
+        const token = (await cookies()).get('goxi-token');
+
+        let accessToken = null;
 
         // If token doesn't exist, get a new one
         if (!token) {
@@ -31,7 +33,7 @@ export async function POST(request: NextRequest) {
             const authData = await authResponse.json();
 
             // Set token in cookies
-            cookies().set({
+            (await cookies()).set({
                 name: 'goxi-token',
                 value: authData.accessToken,
                 httpOnly: true,
@@ -41,10 +43,10 @@ export async function POST(request: NextRequest) {
             });
 
             // Use the new token
-            var accessToken = authData.accessToken;
+            accessToken = authData.accessToken;
         } else {
             // Use existing token
-            var accessToken = token.value;
+            accessToken = token.value;
         }
 
         // Get agent data from request body

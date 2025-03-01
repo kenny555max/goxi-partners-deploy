@@ -130,7 +130,7 @@ export default function ThankYouPage() {
                             </div>
                             <div>
                                 <h3 className="font-medium">Check your email</h3>
-                                <p className="text-gray-600">We've sent you a confirmation email with important information.</p>
+                                <p className="text-gray-600">We ve sent you a confirmation email with important information.</p>
                             </div>
                         </div>
                     </motion.div>

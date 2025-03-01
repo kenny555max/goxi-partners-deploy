@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 const API_URL = "http://microlifetestapi.newgibsonline.com";
 
@@ -27,7 +27,7 @@ export async function POST() {
         const data = await response.json();
 
         // Set token in cookies
-        cookies().set({
+        (await cookies()).set({
             name: 'goxi-token',
             value: data.accessToken,
             httpOnly: true,
