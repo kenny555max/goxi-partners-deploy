@@ -13,6 +13,7 @@ type HeroProps = {
     imageSrc: string;
     imageAlt?: string;
     overlayOpacity?: number;
+    formType: string; // Added formType to determine the form's behavior
 };
 
 // Form Props
@@ -21,7 +22,7 @@ type AuthFormProps = {
 };
 
 // Main Form Component
-const AgentRegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
+const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
     const [error, setError] = useState("");
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +45,7 @@ const AgentRegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
     });
 
     const [showPassword, setShowPassword] = React.useState(false);
+    const isLoginForm = heroProps.formType === 'login';
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -54,16 +56,25 @@ const AgentRegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
     };
 
     const handleSubmit = async () => {
-        const { fullName, email, phone1, address, password, confirm_password } = formData;
-
-        if (!fullName || !email || !phone1 || !address || !password || !confirm_password) {
-            setError("Fill all required fields");
-            return;
-        }
-
-        if (password !== confirm_password) {
-            setError("Passwords do not match");
-            return;
+        // Validation differs based on form type
+        if (isLoginForm) {
+            // Login validation
+            const { email, password } = formData;
+            if (!email || !password) {
+                setError("Email and password are required");
+                return;
+            }
+        } else {
+            // Register validation
+            const { fullName, email, phone1, address, password, confirm_password } = formData;
+            if (!fullName || !email || !phone1 || !address || !password || !confirm_password) {
+                setError("Fill all required fields");
+                return;
+            }
+            if (password !== confirm_password) {
+                setError("Passwords do not match");
+                return;
+            }
         }
 
         try {
@@ -79,31 +90,33 @@ const AgentRegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                 throw new Error("Authentication failed");
             }
 
-            // Then create the agent
+            // Prepare data for submission - different for login vs register
+            // For login, populate default values for required fields
             const agentData = {
                 unitID: Math.random().toString(36).substring(2, 10), // Generate a random ID
-                agent: formData.fullName,
-                address: formData.address,
-                area: formData.area || "",
-                city: formData.city || "",
-                state: formData.state || "",
-                phone1: formData.phone1,
-                phone2: formData.phone2 || "",
-                faxNo: formData.faxNo || "",
-                email: formData.email,
-                insPerson: formData.insPerson || "",
-                finPerson: formData.finPerson || "",
+                agent: isLoginForm ? "Default Agent" : formData.fullName,
+                address: isLoginForm ? "Default Address" : formData.address,
+                area: isLoginForm ? "" : (formData.area || ""),
+                city: isLoginForm ? "" : (formData.city || ""),
+                state: isLoginForm ? "" : (formData.state || ""),
+                phone1: isLoginForm ? "0000000000" : formData.phone1,
+                phone2: isLoginForm ? "" : (formData.phone2 || ""),
+                faxNo: isLoginForm ? "" : (formData.faxNo || ""),
+                email: formData.email, // Email is required for both
+                insPerson: isLoginForm ? "" : (formData.insPerson || ""),
+                finPerson: isLoginForm ? "" : (formData.finPerson || ""),
                 balance: 0,
                 creditLimit: 0,
                 comRate: 0,
                 remark: "",
-                accountNo: formData.accountNo || "",
-                bankname: formData.bankname || "",
-                tag: "",
-                submittedBy: formData.fullName,
+                accountNo: isLoginForm ? "" : (formData.accountNo || ""),
+                bankname: isLoginForm ? "" : (formData.bankname || ""),
+                tag: isLoginForm ? "login" : "register", // Mark the type of submission
+                submittedBy: isLoginForm ? "LoginSystem" : formData.fullName,
                 modifiedBy: ""
             };
 
+            // Same endpoint for both login and register
             const response = await fetch("/api/agents", {
                 method: "POST",
                 headers: {
@@ -115,15 +128,21 @@ const AgentRegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
             const data = await response.json();
 
             if (!response.ok) {
-                throw { message: data?.error || "Failed to create agent" }
+                throw { message: data?.error || `Failed to ${isLoginForm ? 'login' : 'create agent'}` }
             }
 
-            console.log("Agent created successfully:", data);
+            console.log(`${isLoginForm ? 'Login' : 'Agent registration'} successful:`, data);
 
-            router.push("/thank-you");
+            // For login, show success message instead of redirecting
+            if (isLoginForm) {
+                setError("");
+                alert("Login successful!");
+            } else {
+                router.push("/thank-you");
+            }
         } catch (error) {
-           console.log(error);
-            setError("Failed to create agent. Please check your network and try again.");
+            console.log(error);
+            setError(`Failed to ${isLoginForm ? 'login' : 'register'}. Please check your credentials and try again.`);
         } finally {
             setIsLoading(false);
         }
@@ -138,21 +157,27 @@ const AgentRegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                         <Image src={"/assets/logo.png"} alt={"goxi-logo"} width={100} height={100} />
                     </Link>
 
-                    <h2 className="text-xl font-semibold mt-8 mb-6">Register as an Agent</h2>
+                    <h2 className="text-xl font-semibold mt-8 mb-6">
+                        {isLoginForm ? "Login to Your Account" : "Register as an Agent"}
+                    </h2>
 
                     {error && (
                         <div className="text-destructive text-red-500 rounded-[10px] mb-2 bg-pink-200 p-[10px] text-[15px] font-[500]">{error}</div>
                     )}
 
-                    <div className="space-y-4 form-scroll h-[300px] overflow-y-scroll">
-                        <Input
-                            label="Full Name *"
-                            type="text"
-                            name="fullName"
-                            value={formData.fullName}
-                            onChange={handleChange}
-                        />
+                    <div className={`space-y-4 ${!isLoginForm ? "form-scroll h-[300px] overflow-y-scroll" : ""}`}>
+                        {/* Show fullName only for registration */}
+                        {!isLoginForm && (
+                            <Input
+                                label="Full Name *"
+                                type="text"
+                                name="fullName"
+                                value={formData.fullName}
+                                onChange={handleChange}
+                            />
+                        )}
 
+                        {/* Email - common to both forms */}
                         <Input
                             label="Email Address *"
                             type="email"
@@ -161,70 +186,76 @@ const AgentRegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                             onChange={handleChange}
                         />
 
-                        <Input
-                            label="Primary Phone *"
-                            type="tel"
-                            name="phone1"
-                            value={formData.phone1}
-                            onChange={handleChange}
-                        />
+                        {/* Registration-only fields */}
+                        {!isLoginForm && (
+                            <>
+                                <Input
+                                    label="Primary Phone *"
+                                    type="tel"
+                                    name="phone1"
+                                    value={formData.phone1}
+                                    onChange={handleChange}
+                                />
 
-                        <Input
-                            label="Secondary Phone"
-                            type="tel"
-                            name="phone2"
-                            value={formData.phone2}
-                            onChange={handleChange}
-                        />
+                                <Input
+                                    label="Secondary Phone"
+                                    type="tel"
+                                    name="phone2"
+                                    value={formData.phone2}
+                                    onChange={handleChange}
+                                />
 
-                        <Input
-                            label="Address *"
-                            type="text"
-                            name="address"
-                            value={formData.address}
-                            onChange={handleChange}
-                        />
+                                <Input
+                                    label="Address *"
+                                    type="text"
+                                    name="address"
+                                    value={formData.address}
+                                    onChange={handleChange}
+                                />
 
-                        <Input
-                            label="Area"
-                            type="text"
-                            name="area"
-                            value={formData.area}
-                            onChange={handleChange}
-                        />
+                                <Input
+                                    label="Area"
+                                    type="text"
+                                    name="area"
+                                    value={formData.area}
+                                    onChange={handleChange}
+                                />
 
-                        <Input
-                            label="City"
-                            type="text"
-                            name="city"
-                            value={formData.city}
-                            onChange={handleChange}
-                        />
+                                <Input
+                                    label="City"
+                                    type="text"
+                                    name="city"
+                                    value={formData.city}
+                                    onChange={handleChange}
+                                />
 
-                        <Input
-                            label="State"
-                            type="text"
-                            name="state"
-                            value={formData.state}
-                            onChange={handleChange}
-                        />
+                                <Input
+                                    label="State"
+                                    type="text"
+                                    name="state"
+                                    value={formData.state}
+                                    onChange={handleChange}
+                                />
 
-                        <Input
-                            label="Bank Name"
-                            type="text"
-                            name="bankname"
-                            value={formData.bankname}
-                            onChange={handleChange}
-                        />
+                                <Input
+                                    label="Bank Name"
+                                    type="text"
+                                    name="bankname"
+                                    value={formData.bankname}
+                                    onChange={handleChange}
+                                />
 
-                        <Input
-                            label="Account Number"
-                            type="text"
-                            name="accountNo"
-                            value={formData.accountNo}
-                            onChange={handleChange}
-                        />
+                                <Input
+                                    label="Account Number"
+                                    type="text"
+                                    name="accountNo"
+                                    value={formData.accountNo}
+                                    onChange={handleChange}
+                                />
+                            </>
+                        )}
 
+                        {/* Password field - common to both forms */}
                         <Input
                             label="Password *"
                             type={showPassword ? "text" : "password"}
@@ -242,37 +273,51 @@ const AgentRegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                             }
                         />
 
-                        <Input
-                            label="Confirm Password *"
-                            type={showPassword ? "text" : "password"}
-                            name="confirm_password"
-                            value={formData.confirm_password}
-                            onChange={handleChange}
-                            icon={
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="focus:outline-none"
-                                >
-                                    {showPassword ? <EyeOff size={20}/> : <Eye size={20}/>}
-                                </button>
-                            }
-                        />
+                        {/* Confirm password - only for registration */}
+                        {!isLoginForm && (
+                            <Input
+                                label="Confirm Password *"
+                                type={showPassword ? "text" : "password"}
+                                name="confirm_password"
+                                value={formData.confirm_password}
+                                onChange={handleChange}
+                                icon={
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="focus:outline-none"
+                                    >
+                                        {showPassword ? <EyeOff size={20}/> : <Eye size={20}/>}
+                                    </button>
+                                }
+                            />
+                        )}
 
                         <button
                             type="button"
                             onClick={handleSubmit}
                             className="w-full bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition-colors"
                         >
-                            {isLoading ? "Loading..." : "Register as Agent"}
+                            {isLoading ? "Loading..." : (isLoginForm ? "Login" : "Register as Agent")}
                         </button>
                     </div>
 
                     <p className="mt-4 text-center text-sm text-gray-600">
-                        Already registered?{' '}
-                        <Link href="/login" className="text-orange-500 hover:text-orange-600">
-                            Login
-                        </Link>
+                        {isLoginForm ? (
+                            <>
+                                Dont have an account?{' '}
+                                <Link href="/register" className="text-orange-500 hover:text-orange-600">
+                                    Register
+                                </Link>
+                            </>
+                        ) : (
+                            <>
+                                Already registered?{' '}
+                                <Link href="/login" className="text-orange-500 hover:text-orange-600">
+                                    Login
+                                </Link>
+                            </>
+                        )}
                     </p>
                 </div>
 
@@ -283,4 +328,4 @@ const AgentRegistrationForm: React.FC<AuthFormProps> = ({ heroProps }) => {
     );
 };
 
-export default AgentRegistrationForm;
+export default AuthForm;

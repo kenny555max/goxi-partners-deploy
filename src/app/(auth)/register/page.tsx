@@ -1,17 +1,15 @@
+'use client';
+import AuthForm from "@/components/templates/form";
 
-// For Signup Page
-
-import RegistrationForm from "@/components/templates/form";
-
-const SignupPage = () => {
+const LoginPage = () => {
     const heroProps = {
-        title: "Create an account to access tailored plans for market traders.",
-        imageSrc: "/assets/partner-2.jpeg",
-        imageAlt: "Market produce",
-        overlayOpacity: 40 // optional, defaults to 40
+        title: "Manage your insurance policies anytime.",
+        imageSrc: "/assets/partner-1.jpeg",
+        imageAlt: "Login hero image",
+        formType: 'register' // Specify that this is a login form
     };
 
-    return <RegistrationForm heroProps={heroProps} />;
+    return <AuthForm heroProps={heroProps} />;
 };
 
-export default SignupPage;
+export default LoginPage;

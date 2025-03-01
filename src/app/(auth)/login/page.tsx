@@ -1,16 +1,15 @@
 'use client';
-// For Login Page
-
-import RegistrationForm from "@/components/templates/form";
+import AuthForm from "@/components/templates/form";
 
 const LoginPage = () => {
     const heroProps = {
         title: "Manage your insurance policies anytime.",
         imageSrc: "/assets/partner-1.jpeg",
-        imageAlt: "Login hero image"
+        imageAlt: "Login hero image",
+        formType: 'login' // Specify that this is a login form
     };
 
-    return <RegistrationForm heroProps={heroProps} />;
+    return <AuthForm heroProps={heroProps} />;
 };
 
 export default LoginPage;
