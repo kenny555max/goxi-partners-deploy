@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'Goxi Micro Insurance | Comprehensive Digital Business Protection',
         description: 'Fully digitalized insurance solutions tailored for small businesses. Agro loans, business theft, fire, and life insurance all in one platform.',
-        url: 'https://goximicroinsurance.com/',
+        url: 'https://partners.goximicroinsurance.com/',
         siteName: 'Goxi Micro Insurance',
         images: [
             {
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
         follow: true,
     },
     alternates: {
-        canonical: 'https://goximicroinsurance.com/',
+        canonical: 'https://partners.goximicroinsurance.com/',
     },
 };
 
@@ -62,7 +62,7 @@ export default function RootLayout({
                         "@type": "LocalBusiness",
                         "name": "Goxi Micro Insurance",
                         "description": "Fully digitalized micro insurance solutions for small businesses, offering comprehensive coverage including agro loans, business protection, and life assurance.",
-                        "url": "https://goximicroinsurance.com/",
+                        "url": "https://partners.goximicroinsurance.com/",
                         "logo": "https://goximicroinsurance.com/icon/goxi-icon.png",
                         "sameAs": [
                             "https://www.facebook.com/goximicroinsurance",
