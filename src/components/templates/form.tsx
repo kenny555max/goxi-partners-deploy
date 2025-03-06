@@ -157,7 +157,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                         <Image src={"/assets/logo.png"} alt={"goxi-logo"} width={100} height={100} />
                     </Link>
 
-                    <h2 className="text-xl font-semibold mt-8 mb-6">
+                    <h2 className="text-[1.6rem] font-semibold mt-8 mb-6">
                         {isLoginForm ? "Login to Your Account" : "Register as an Agent"}
                     </h2>
 
@@ -296,13 +296,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                         <button
                             type="button"
                             onClick={handleSubmit}
-                            className="w-full bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition-colors"
+                            className="w-full hover:bg-blue-600 bg-orange-500 text-lg text-white py-2 px-4 rounded-md hover:bg-orange-600 transition-colors"
                         >
                             {isLoading ? "Loading..." : (isLoginForm ? "Login" : "Register as Agent")}
                         </button>
                     </div>
 
-                    <p className="mt-4 text-center text-sm text-gray-600">
+                    <p className="mt-4 text-center text-md text-gray-600">
                         {isLoginForm ? (
                             <>
                                 Dont have an account?{' '}

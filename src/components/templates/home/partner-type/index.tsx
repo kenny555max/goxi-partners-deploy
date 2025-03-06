@@ -30,9 +30,9 @@ const PartnerTypeSection: React.FC = () => {
             href: "/register"
         },
         {
-            title: "Microfinance Institutions MFI",
-            description: "We partner with Microfinance Banks, Micro Credit companies, Micro Leasing companies, and Finance Houses to develop unique Microinsurance products for your clients.",
-            buttonText: "Become a MFI Partner",
+            title: "Technology Companies",
+            description: "We collaborate with software developers, fintech startups, and digital platforms to integrate our microinsurance solutions into your tech ecosystem, creating seamless insurance experiences for your users.",
+            buttonText: "Become a Technology Partner",
             href: "/register"
         },
         {
@@ -40,7 +40,7 @@ const PartnerTypeSection: React.FC = () => {
             description: "We partner with cooperatives to distribute microinsurance products for expanding financial inclusion and providing underserved populations with essential risk protection.",
             buttonText: "Become a Cooperative Partner",
             href: "/register"
-        }
+        },
     ];
 
     return (

@@ -22,7 +22,7 @@ const Input = ({
                    className = ''
                }: InputProps) => (
     <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+        <label className="block text-md font-medium text-gray-700 mb-1">{label}</label>
         <div className="relative">
             <input
                 type={type}
