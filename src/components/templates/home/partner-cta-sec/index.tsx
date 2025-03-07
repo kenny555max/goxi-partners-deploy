@@ -22,6 +22,10 @@ const BrandLogo: React.FC<LogoProps> = ({ src, alt }) => (
 const PartnerCtaSection: React.FC = () => {
     const logos: LogoProps[] = [
         {
+            src: "/assets/logo-5.png",
+            alt: "lapo logo"
+        },
+        {
             src: "/assets/logo-1.png",
             alt: "orange insurance brokers limited logo"
         },
@@ -36,10 +40,6 @@ const PartnerCtaSection: React.FC = () => {
         {
             src: "/assets/logo-4.png",
             alt: "rehoboth cms logo"
-        },
-        {
-            src: "/assets/logo-5.png",
-            alt: "lapo logo"
         }
     ];
 

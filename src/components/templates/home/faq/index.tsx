@@ -7,28 +7,20 @@ const FaqSection = () => {
 
     const faqs = [
         {
-            question: "Why do I need to secure my business?",
-            answer: "Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."
+            question: "How can I become a partner?",
+            answer: "You can become a partner by signing up on our platform and completing the necessary registration process. Once approved, you'll have access to our partnership benefits."
         },
         {
-            question: "Which insurance products does GOXI provide for individuals?",
-            answer: "GOXI offers a range of products for individuals, including health, life, and property insurance."
+            question: "What are the benefits of being a partner?",
+            answer: "As a partner, you get access to exclusive commissions, marketing support, and training resources to help you succeed in promoting our services."
         },
         {
-            question: "How do I buy insurance from GOXI?",
-            answer: "You can easily buy insurance by visiting our website or contacting one of our agents."
+            question: "How much money can I make as a partner?",
+            answer: "Your earnings depend on the number of clients you refer and the types of policies they purchase. The more successful referrals you make, the higher your commissions."
         },
         {
-            question: "How long do I need to wait to file a claim?",
-            answer: "Claims can be filed immediately after your insurance policy becomes active."
-        },
-        {
-            question: "Can I upgrade my plan later?",
-            answer: "Yes, you can upgrade your plan at any time by contacting our support team."
-        },
-        {
-            question: "I already have microinsurance, can I migrate to GOXI?",
-            answer: "Yes, we provide a seamless migration process for customers moving from other insurance providers."
+            question: "Do I need any qualification to become a partner?",
+            answer: "No formal qualifications are required to become a partner. However, having experience in sales or the insurance industry can be an added advantage."
         }
     ];
 
