@@ -1,0 +1,136 @@
+// src/components/Dashboard.tsx
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Briefcase,
+    Users,
+    Flame,
+    ShoppingCart
+} from 'lucide-react';
+
+const StatCard = ({
+                      title,
+                      value,
+                      icon,
+                      color
+                  }: {
+    title: string;
+    value: number;
+    icon: React.ReactNode;
+    color: string;
+}) => (
+    <Card className="shadow-md hover:shadow-lg transition-shadow">
+        <CardContent className="p-0 flex overflow-hidden">
+            <div className={`${color} w-1/3 flex items-center justify-center py-6`}>
+                {icon}
+            </div>
+            <div className="p-6 flex flex-col justify-center">
+                <p className="text-3xl font-bold">{value}</p>
+                <p className="text-sm text-gray-500 mt-1">{title}</p>
+            </div>
+        </CardContent>
+    </Card>
+);
+
+const Dashboard = () => {
+    const stats = [
+        {
+            title: 'Policies',
+            value: 0,
+            icon: <Briefcase size={36} className="text-white" />,
+            color: 'bg-green-600'
+        },
+        {
+            title: 'Insured',
+            value: 0,
+            icon: <Users size={36} className="text-white" />,
+            color: 'bg-custom-red'
+        },
+        {
+            title: 'Claims',
+            value: 0,
+            icon: <Flame size={36} className="text-white" />,
+            color: 'bg-custom-yellow'
+        },
+        {
+            title: 'Sales',
+            value: 0,
+            icon: <ShoppingCart size={36} className="text-white" />,
+            color: 'bg-blue-500'
+        }
+    ];
+
+    return (
+        <div className="p-6 space-y-8">
+            <h1 className="text-2xl font-bold">Dashboard</h1>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {stats.map((stat, index) => (
+                    <StatCard
+                        key={index}
+                        title={stat.title}
+                        value={stat.value}
+                        icon={stat.icon}
+                        color={stat.color}
+                    />
+                ))}
+            </div>
+
+            {/* Welcome Card */}
+            <Card className="bg-gradient-to-r from-custom-green to-custom-yellow text-white p-8 shadow-lg">
+                <CardHeader className="pb-2">
+                    <CardTitle className="text-3xl font-bold">Welcome to Partner Platform</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-lg">
+                        GibsPartner v1.0 is bringing you closer to your insurance partners
+                    </p>
+                    <div className="mt-6 bg-black/20 rounded-full p-4 text-center">
+                        <p className="text-xl font-medium">Kunle Joseph</p>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Recent Activity Section */}
+            <div className="space-y-4">
+                <h2 className="text-xl font-semibold">Recent Activity</h2>
+                <Card>
+                    <CardContent className="p-6">
+                        <div className="text-center py-8 text-gray-500">
+                            <p>No recent activity to display</p>
+                            <p className="mt-2 text-sm">Your recent actions will appear here</p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="space-y-4">
+                <h2 className="text-xl font-semibold">Quick Actions</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card className="bg-green-600 text-white cursor-pointer hover:bg-green-700 transition-colors">
+                        <CardContent className="p-6 flex items-center justify-between">
+                            <p className="font-medium">Create New Policy</p>
+                            <Briefcase size={24} />
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-custom-yellow text-white cursor-pointer hover:bg-yellow-600 transition-colors">
+                        <CardContent className="p-6 flex items-center justify-between">
+                            <p className="font-medium">Submit a Claim</p>
+                            <Flame size={24} />
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-custom-red text-white cursor-pointer hover:bg-red-700 transition-colors">
+                        <CardContent className="p-6 flex items-center justify-between">
+                            <p className="font-medium">View Reports</p>
+                            <ShoppingCart size={24} />
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default Dashboard;

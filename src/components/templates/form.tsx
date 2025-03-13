@@ -136,7 +136,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
             // For login, show success message instead of redirecting
             if (isLoginForm) {
                 setError("");
-                alert("Login successful!");
+                router.push("/dashboard");
             } else {
                 router.push("/thank-you");
             }
