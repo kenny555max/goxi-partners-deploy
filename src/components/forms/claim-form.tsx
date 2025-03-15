@@ -10,18 +10,37 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+// Updated interface to match the required request body
 interface FormData {
     policyNo: string;
+    lossNotifyDate: Date | undefined; // This is when the claim is submitted
+    lossDate: Date | undefined;       // This is when the loss occurred
+    lossType: string;                 // New field for type of loss
+    lossDescription: string;          // Renamed from lossDetails
+
+    // Additional form fields for UI but not part of the final API request
     surname: string;
     othernames: string;
     certificateNo: string;
     mobileNo: string;
     email: string;
-    lossDetails: string;
-    lossDate: Date | undefined;
     supportFile: File | null;
 }
+
+// Loss type options for the dropdown
+const lossTypes = [
+    "Fire Damage",
+    "Theft",
+    "Water Damage",
+    "Natural Disaster",
+    "Vehicle Accident",
+    "Medical Emergency",
+    "Property Damage",
+    "Business Interruption",
+    "Other"
+];
 
 const ClaimForm: React.FC = () => {
     const [formData, setFormData] = useState<FormData>({
@@ -31,8 +50,10 @@ const ClaimForm: React.FC = () => {
         certificateNo: '',
         mobileNo: '',
         email: '',
-        lossDetails: '',
+        lossDescription: '',
+        lossType: '',
         lossDate: undefined,
+        lossNotifyDate: new Date(), // Default to current date
         supportFile: null,
     });
 
@@ -45,6 +66,13 @@ const ClaimForm: React.FC = () => {
         setFormData({
             ...formData,
             [name]: value,
+        });
+    };
+
+    const handleSelectChange = (value: string) => {
+        setFormData({
+            ...formData,
+            lossType: value,
         });
     };
 
@@ -71,17 +99,47 @@ const ClaimForm: React.FC = () => {
         setSuccess(null);
 
         try {
-            // Create FormData for file upload
+            // Set notification date to current time
+            const currentDate = new Date();
+            setFormData(prev => ({
+                ...prev,
+                lossNotifyDate: currentDate
+            }));
+
+            // Prepare the API request body according to the expected format
+            const apiRequestData = {
+                policyNo: formData.policyNo,
+                lossNotifyDate: formData.lossNotifyDate?.toISOString(),
+                lossDate: formData.lossDate?.toISOString(),
+                lossType: formData.lossType,
+                lossDescription: formData.lossDescription
+            };
+
+            // Create FormData for file upload and additional user info
             const data = new FormData();
-            Object.entries(formData).forEach(([key, value]) => {
-                if (key === 'supportFile' && value) {
-                    data.append(key, value);
-                } else if (key === 'lossDate' && value) {
-                    data.append(key, value.toISOString());
-                } else if (typeof value === 'string') {
-                    data.append(key, value);
-                }
-            });
+
+            // Add the main API request data as JSON
+            data.append('claimData', JSON.stringify(apiRequestData));
+
+            data.append("policyNo", formData.policyNo);
+            // @ts-ignore
+            data.append("lossNotifyDate", formData.lossNotifyDate?.toISOString());
+            // @ts-ignore
+            data.append("lossData", formData.lossDate?.toISOString());
+            data.append("lossType", formData.lossType);
+            data.append("lossDescription", formData.lossDescription);
+
+            // Add additional form fields for internal processing
+            data.append('surname', formData.surname);
+            data.append('othernames', formData.othernames);
+            data.append('certificateNo', formData.certificateNo);
+            data.append('mobileNo', formData.mobileNo);
+            data.append('email', formData.email);
+
+            // Add the file if one was selected
+            if (formData.supportFile) {
+                data.append('supportFile', formData.supportFile);
+            }
 
             // API integration for submitting claim
             const response = await fetch('/api/claims/submit', {
@@ -95,6 +153,8 @@ const ClaimForm: React.FC = () => {
                 throw new Error(result.message || 'Failed to submit claim');
             }
 
+            console.log(result);
+
             setSuccess('Your claim has been submitted successfully!');
             // Reset form after successful submission
             setFormData({
@@ -104,8 +164,10 @@ const ClaimForm: React.FC = () => {
                 certificateNo: '',
                 mobileNo: '',
                 email: '',
-                lossDetails: '',
+                lossDescription: '',
+                lossType: '',
                 lossDate: undefined,
+                lossNotifyDate: new Date(),
                 supportFile: null,
             });
         } catch (err) {
@@ -212,17 +274,23 @@ const ClaimForm: React.FC = () => {
                             />
                         </div>
 
-                        <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="lossDetails" className="text-foreground font-medium">Loss Details</Label>
-                            <Textarea
-                                id="lossDetails"
-                                name="lossDetails"
-                                value={formData.lossDetails}
-                                onChange={handleInputChange}
-                                placeholder="Describe the loss or damage in detail"
-                                className="border-gray-300 focus:ring-custom-green focus:border-custom-green min-h-[120px]"
-                                required
-                            />
+                        <div className="space-y-2">
+                            <Label htmlFor="lossType" className="text-foreground font-medium">Type of Loss</Label>
+                            <Select
+                                value={formData.lossType}
+                                onValueChange={handleSelectChange}
+                            >
+                                <SelectTrigger className="w-full border-gray-300 focus:ring-custom-green focus:border-custom-green">
+                                    <SelectValue placeholder="Select loss type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {lossTypes.map((type) => (
+                                        <SelectItem key={type} value={type}>
+                                            {type}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         <div className="space-y-2">
@@ -249,6 +317,19 @@ const ClaimForm: React.FC = () => {
                                     />
                                 </PopoverContent>
                             </Popover>
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="lossDescription" className="text-foreground font-medium">Loss Description</Label>
+                            <Textarea
+                                id="lossDescription"
+                                name="lossDescription"
+                                value={formData.lossDescription}
+                                onChange={handleInputChange}
+                                placeholder="Describe the loss or damage in detail"
+                                className="border-gray-300 focus:ring-custom-green focus:border-custom-green min-h-[120px]"
+                                required
+                            />
                         </div>
 
                         <div className="space-y-2">

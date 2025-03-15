@@ -9,6 +9,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {clearAgentData} from "@/utils/agentCookies";
 
 interface HeaderProps {
     title?: string;
@@ -41,7 +42,7 @@ const Header = ({ title, username }: HeaderProps) => {
                         <DropdownMenuItem>Profile</DropdownMenuItem>
                         <DropdownMenuItem>Settings</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>Logout</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => clearAgentData()}>Logout</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
