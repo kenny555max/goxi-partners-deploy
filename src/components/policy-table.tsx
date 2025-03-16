@@ -36,7 +36,7 @@ interface Policy {
 }
 
 interface PolicyTableProps {
-    policies: Policy[];
+    policies: any[];
 }
 
 const StatusBadge = ({ status }: { status: Policy['status'] }) => {
@@ -75,7 +75,7 @@ const PolicyTable = ({ policies }: PolicyTableProps) => {
     const totalPages = Math.ceil(filteredPolicies.length / pageSize);
 
     // Helper function to convert policies to CSV format
-    const convertToCSV = (policies: Policy[]) => {
+    const convertToCSV = (policies: any[]) => {
         const headers = ['Policy No', 'Product', 'Insured', 'Period of Cover', 'FOP', 'Premium', 'Sum Insured', 'Status', 'Trans Date'];
         const csvRows = [
             headers.join(','),

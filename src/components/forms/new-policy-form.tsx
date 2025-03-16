@@ -287,7 +287,7 @@ export default function NewPolicyForm() {
                 });
                 // Reset form and redirect to policies list
                 resetForm();
-                router.push('/policies');
+                router.push('/policy/all');
             } else {
                 throw new Error(data.message || 'Failed to create policy');
             }
