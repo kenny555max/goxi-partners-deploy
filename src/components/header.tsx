@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { logout } from '@/app/actions/auth-actions';
 import {AgentData} from "@/utils/agentCookies";
+import Image from "next/image";
+import Link from "next/link";
 
 interface HeaderProps {
     agent: AgentData
@@ -20,9 +22,11 @@ interface HeaderProps {
 
 const Header = ({ agent }: HeaderProps) => {
     return (
-        <div className="w-full px-6 py-4 bg-white border-b border-gray-200 flex justify-between items-center">
+        <div className="w-full px-6 py-4 md:pl-64 bg-white border-b border-gray-200 flex justify-between items-center">
             <div>
-                <h1 className="text-xl font-medium text-gray-800">{''}</h1>
+                <Link href={"/dashboard"} className="text-red-600 flex-shrink-0 text-2xl font-bold">
+                    <Image src={"/assets/logo.png"} alt={"goxi-logo"} width={100} height={100} />
+                </Link>
             </div>
 
             <div className="flex items-center space-x-4">

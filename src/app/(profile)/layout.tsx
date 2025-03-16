@@ -22,7 +22,7 @@ export default async function RootLayout({
         <div>
             <Header agent={agentValue} />
             <Sidebar />
-            <div className="ml-64">
+            <div className="md:ml-64">
                 {children}
                 <ToastProvider />
             </div>

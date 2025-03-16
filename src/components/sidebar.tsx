@@ -99,7 +99,7 @@ const Sidebar = () => {
     ];
 
     return (
-        <div className="bg-gray-800 w-64 h-screen fixed left-0 top-0 overflow-y-auto">
+        <div className="bg-gray-800 w-0 md:w-64 h-screen fixed left-0 top-0 overflow-y-auto">
             <div className="bg-blue-500 py-4 px-6">
                 <h1 className="text-white font-bold text-xl">PARTNERS PLATFORM</h1>
             </div>
