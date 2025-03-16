@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
         const payload = {
             policyNo,
             ...(endorsementNo && { endorsementNo }),
-            membersData: membersArray
+            file: membersArray
         };
 
         // Make request to external API
