@@ -100,7 +100,7 @@ interface PolicyFormData {
 interface ApiResponse {
     success: boolean;
     message?: string;
-    data?: any;
+    data?: unknown;
 }
 
 export default function NewPolicyForm() {

@@ -17,6 +17,7 @@ export function DatePicker({
    placeholder = "Pick a date",
    className,
 }: DatePickerProps) {
+    console.log(placeholder)
     const [date, setDate] = React.useState<Date | undefined>(value);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

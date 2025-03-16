@@ -73,7 +73,7 @@ interface FormattedData {
 interface ApiResponse {
     // Define your API response structure here
     // This should match the structure of the response from your external API
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {

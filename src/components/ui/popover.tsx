@@ -38,7 +38,6 @@ export const Popover: React.FC<{ children: React.ReactNode }> = ({ children }) =
     }, [open, handleClickOutside]);
 
     return (
-        // @ts-ignore
         <PopoverContext.Provider value={{ open, setOpen, triggerRef, contentRef }}>
             {children}
         </PopoverContext.Provider>

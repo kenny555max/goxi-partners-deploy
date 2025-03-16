@@ -27,6 +27,7 @@ export async function middleware(request: NextRequest) {
             // Token exists, redirect to dashboard
             return NextResponse.redirect(new URL('/dashboard', request.url));
         } catch (error) {
+            console.log(error);
             // If token verification fails, clear the cookie and continue
             const response = NextResponse.next();
             response.cookies.delete('goxi-auth-token');

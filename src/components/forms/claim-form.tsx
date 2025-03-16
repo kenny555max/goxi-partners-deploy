@@ -115,6 +115,10 @@ const ClaimForm: React.FC = () => {
                 lossDescription: formData.lossDescription
             };
 
+            if (!formData.lossDate || !formData.lossNotifyDate){
+                return;
+            }
+
             // Create FormData for file upload and additional user info
             const data = new FormData();
 
@@ -122,9 +126,7 @@ const ClaimForm: React.FC = () => {
             data.append('claimData', JSON.stringify(apiRequestData));
 
             data.append("policyNo", formData.policyNo);
-            // @ts-ignore
             data.append("lossNotifyDate", formData.lossNotifyDate?.toISOString());
-            // @ts-ignore
             data.append("lossData", formData.lossDate?.toISOString());
             data.append("lossType", formData.lossType);
             data.append("lossDescription", formData.lossDescription);

@@ -11,12 +11,13 @@ interface CalendarProps {
 }
 
 export const Calendar: React.FC<CalendarProps> = ({
-                                                      mode = "single",
-                                                      selected,
-                                                      onSelect,
-                                                      initialFocus = false,
-                                                      className,
-                                                  }) => {
+  mode = "single",
+  selected,
+  onSelect,
+  initialFocus = false,
+  className,
+}) => {
+    console.log(mode, initialFocus)
     const [currentMonth, setCurrentMonth] = React.useState(new Date());
 
     const getDaysInMonth = (year: number, month: number) => {

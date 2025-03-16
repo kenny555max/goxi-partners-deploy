@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
         if (file) {
             // Example file handling (in a real app, you'd upload to storage)
-            const fileBuffer = await file.arrayBuffer();
+            //const fileBuffer = await file.arrayBuffer();
             const fileName = `${Date.now()}-${file.name}`;
 
             // Here you would upload to your storage service
@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
 
         // Create claim in database
         // This is where you'd integrate with your backend service
+        /*
         const claimData = {
             policyNo: formData.get('policyNo'),
             surname: formData.get('surname'),
@@ -48,6 +49,8 @@ export async function POST(request: NextRequest) {
             status: 'New',
             createdAt: new Date().toISOString(),
         };
+
+         */
 
         // In a real app, you would save this data to your database
         // const savedClaim = await db.claims.create(claimData);

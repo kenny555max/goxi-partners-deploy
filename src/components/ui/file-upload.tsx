@@ -50,6 +50,7 @@ const GroupMembersUpload: React.FC = () => {
 
                     resolve(jsonData);
                 } catch (error) {
+                    console.log(error);
                     reject(new Error('Failed to parse Excel file. Please check the file format.'));
                 }
             };

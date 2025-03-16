@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Check, ArrowRight, Clock, Phone, Mail, FileText, Copy, AlertTriangle, X } from 'lucide-react';
+import { Check, ArrowRight, Clock, Phone, Mail, FileText, Copy, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ThankYouPage() {
@@ -19,7 +19,8 @@ export default function ThankYouPage() {
 
     // Copy agent ID to clipboard
     const copyToClipboard = () => {
-        // @ts-ignore
+        if (!agentId) return;
+
         navigator.clipboard.writeText(agentId)
             .then(() => {
                 setCopied(true);
@@ -259,7 +260,7 @@ export default function ThankYouPage() {
                             </div>
                             <div>
                                 <h3 className="font-medium">Check your email</h3>
-                                <p className="text-gray-600">We've sent you a confirmation email with important information.</p>
+                                <p className="text-gray-600">We ve sent you a confirmation email with important information.</p>
                             </div>
                         </div>
                     </motion.div>

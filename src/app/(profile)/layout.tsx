@@ -1,7 +1,6 @@
 import { ToastProvider } from '@/components/ui/toast-provider'
 import { cookies } from 'next/headers';
 import {redirect} from "next/navigation";
-import {Navigation} from "lucide-react";
 import NavigationComp from "@/components/navigation";
 
 export default async function RootLayout({

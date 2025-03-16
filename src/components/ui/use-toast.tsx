@@ -136,6 +136,7 @@ export function useToast() {
         toast: (props: Omit<Toast, "id">) => {
             const id = genId()
 
+            /*
             const update = (props: Partial<Toast>) =>
                 dispatch({
                     type: actionTypes.UPDATE_TOAST,
@@ -144,6 +145,8 @@ export function useToast() {
                 })
 
             const dismiss = () => dispatch({ type: actionTypes.DISMISS_TOAST, id })
+
+             */
 
             dispatch({
                 type: actionTypes.ADD_TOAST,

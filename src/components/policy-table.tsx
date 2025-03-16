@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useRef } from 'react';
-import { Search, Download, Copy, FileText, Filter, MoreHorizontal, Eye, Edit, Trash2, Printer } from 'lucide-react';
+import { Search, Download, Copy, FileText, MoreHorizontal, Eye, Edit, Trash2, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -36,7 +36,7 @@ interface Policy {
 }
 
 interface PolicyTableProps {
-    policies: any[];
+    policies: unknown[];
 }
 
 const StatusBadge = ({ status }: { status: Policy['status'] }) => {
@@ -75,7 +75,7 @@ const PolicyTable = ({ policies }: PolicyTableProps) => {
     const totalPages = Math.ceil(filteredPolicies.length / pageSize);
 
     // Helper function to convert policies to CSV format
-    const convertToCSV = (policies: any[]) => {
+    const convertToCSV = (policies: unknown[]) => {
         const headers = ['Policy No', 'Product', 'Insured', 'Period of Cover', 'FOP', 'Premium', 'Sum Insured', 'Status', 'Trans Date'];
         const csvRows = [
             headers.join(','),
