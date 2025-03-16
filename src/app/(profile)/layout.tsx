@@ -16,11 +16,11 @@ export default async function RootLayout({
         redirect('/login');
     }
 
-    console.log(JSON.parse(agentDataCookie.value));
+    const agentValue = JSON.parse(agentDataCookie.value);
 
     return(
         <div>
-            <Header title={"Title"} username={"Kenny"} />
+            <Header agent={agentValue} />
             <Sidebar />
             <div className="ml-64">
                 {children}

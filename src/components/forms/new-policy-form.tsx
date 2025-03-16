@@ -3,14 +3,20 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select } from "@/components/ui/select";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
+// Updated the empty string to "default"
 const productOptions = [
-    { value: "", label: "Choose..." },
     { value: "life", label: "Life Insurance" },
     { value: "health", label: "Health Insurance" },
     { value: "property", label: "Property Insurance" },
@@ -18,14 +24,12 @@ const productOptions = [
 ];
 
 const productTypeOptions = [
-    { value: "", label: "Choose..." },
     { value: "individual", label: "Individual" },
     { value: "family", label: "Family" },
     { value: "group", label: "Group" },
 ];
 
 const stateOptions = [
-    { value: "", label: "Choose..." },
     { value: "lagos", label: "Lagos" },
     { value: "abuja", label: "Abuja" },
     { value: "oyo", label: "Oyo" },
@@ -33,14 +37,12 @@ const stateOptions = [
 ];
 
 const genderOptions = [
-    { value: "", label: "Choose..." },
     { value: "male", label: "Male" },
     { value: "female", label: "Female" },
     { value: "other", label: "Other" },
 ];
 
 const maritalStatusOptions = [
-    { value: "", label: "Choose..." },
     { value: "single", label: "Single" },
     { value: "married", label: "Married" },
     { value: "divorced", label: "Divorced" },
@@ -48,7 +50,6 @@ const maritalStatusOptions = [
 ];
 
 const paymentFrequencyOptions = [
-    { value: "", label: "Choose..." },
     { value: "monthly", label: "Monthly" },
     { value: "quarterly", label: "Quarterly" },
     { value: "biannually", label: "Biannually" },
@@ -56,7 +57,6 @@ const paymentFrequencyOptions = [
 ];
 
 const policyCoverTypeOptions = [
-    { value: "", label: "Choose..." },
     { value: "basic", label: "Basic" },
     { value: "standard", label: "Standard" },
     { value: "premium", label: "Premium" },
@@ -85,22 +85,32 @@ export default function NewPolicyForm() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <Label htmlFor="product" className="mb-1 block">Product</Label>
-                                        <Select id="product" name="product" required>
-                                            {productOptions.map((option) => (
-                                                <option key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </option>
-                                            ))}
+                                        <Select name="product" required>
+                                            <SelectTrigger id="product">
+                                                <SelectValue placeholder="Choose..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {productOptions.map((option) => (
+                                                    <SelectItem key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
                                         </Select>
                                     </div>
                                     <div>
                                         <Label htmlFor="productType" className="mb-1 block">Product Type</Label>
-                                        <Select id="productType" name="productType" required>
-                                            {productTypeOptions.map((option) => (
-                                                <option key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </option>
-                                            ))}
+                                        <Select name="productType" required>
+                                            <SelectTrigger id="productType">
+                                                <SelectValue placeholder="Choose..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {productTypeOptions.map((option) => (
+                                                    <SelectItem key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
                                         </Select>
                                     </div>
                                 </div>
@@ -141,12 +151,17 @@ export default function NewPolicyForm() {
 
                                 <div>
                                     <Label htmlFor="policyType" className="mb-1 block">Policy Cover Type</Label>
-                                    <Select id="policyType" name="policyType" required>
-                                        {policyCoverTypeOptions.map((option) => (
-                                            <option key={option.value} value={option.value}>
-                                                {option.label}
-                                            </option>
-                                        ))}
+                                    <Select name="policyType" required>
+                                        <SelectTrigger id="policyType">
+                                            <SelectValue placeholder="Choose..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {policyCoverTypeOptions.map((option) => (
+                                                <SelectItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
                                     </Select>
                                 </div>
 
@@ -163,12 +178,17 @@ export default function NewPolicyForm() {
 
                                 <div>
                                     <Label htmlFor="frequency" className="mb-1 block">Frequency of Payment</Label>
-                                    <Select id="frequency" name="frequency" required>
-                                        {paymentFrequencyOptions.map((option) => (
-                                            <option key={option.value} value={option.value}>
-                                                {option.label}
-                                            </option>
-                                        ))}
+                                    <Select name="frequency" required>
+                                        <SelectTrigger id="frequency">
+                                            <SelectValue placeholder="Choose..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {paymentFrequencyOptions.map((option) => (
+                                                <SelectItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
                                     </Select>
                                 </div>
                             </div>
@@ -247,12 +267,17 @@ export default function NewPolicyForm() {
                                     </div>
                                     <div>
                                         <Label htmlFor="state" className="mb-1 block">State</Label>
-                                        <Select id="state" name="state" required>
-                                            {stateOptions.map((option) => (
-                                                <option key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </option>
-                                            ))}
+                                        <Select name="state" required>
+                                            <SelectTrigger id="state">
+                                                <SelectValue placeholder="Choose..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {stateOptions.map((option) => (
+                                                    <SelectItem key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
                                         </Select>
                                     </div>
                                     <div>
@@ -269,22 +294,32 @@ export default function NewPolicyForm() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <Label htmlFor="gender" className="mb-1 block">Gender</Label>
-                                        <Select id="gender" name="gender" required>
-                                            {genderOptions.map((option) => (
-                                                <option key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </option>
-                                            ))}
+                                        <Select name="gender" required>
+                                            <SelectTrigger id="gender">
+                                                <SelectValue placeholder="Choose..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {genderOptions.map((option) => (
+                                                    <SelectItem key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
                                         </Select>
                                     </div>
                                     <div>
                                         <Label htmlFor="maritalStatus" className="mb-1 block">Marital Status</Label>
-                                        <Select id="maritalStatus" name="maritalStatus" required>
-                                            {maritalStatusOptions.map((option) => (
-                                                <option key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </option>
-                                            ))}
+                                        <Select name="maritalStatus" required>
+                                            <SelectTrigger id="maritalStatus">
+                                                <SelectValue placeholder="Choose..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {maritalStatusOptions.map((option) => (
+                                                    <SelectItem key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
                                         </Select>
                                     </div>
                                 </div>

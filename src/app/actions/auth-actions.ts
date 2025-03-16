@@ -2,7 +2,6 @@
 'use server';
 
 import { clearAgentData } from '@/utils/agentCookies';
-import { redirect } from 'next/navigation';
 
 export async function logout() {
     await clearAgentData();

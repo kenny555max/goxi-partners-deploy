@@ -19,6 +19,7 @@ export default function ThankYouPage() {
 
     // Copy agent ID to clipboard
     const copyToClipboard = () => {
+        // @ts-ignore
         navigator.clipboard.writeText(agentId)
             .then(() => {
                 setCopied(true);

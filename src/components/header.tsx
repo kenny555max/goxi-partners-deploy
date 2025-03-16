@@ -12,17 +12,17 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { logout } from '@/app/actions/auth-actions';
+import {AgentData} from "@/utils/agentCookies";
 
 interface HeaderProps {
-    title?: string;
-    username: string;
+    agent: AgentData
 }
 
-const Header = ({ title, username }: HeaderProps) => {
+const Header = ({ agent }: HeaderProps) => {
     return (
         <div className="w-full px-6 py-4 bg-white border-b border-gray-200 flex justify-between items-center">
             <div>
-                <h1 className="text-xl font-medium text-gray-800">{title || 'Info! Notification Bar.'}</h1>
+                <h1 className="text-xl font-medium text-gray-800">{''}</h1>
             </div>
 
             <div className="flex items-center space-x-4">
@@ -35,14 +35,14 @@ const Header = ({ title, username }: HeaderProps) => {
                         <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
                             <User size={18} className="text-gray-600" />
                         </div>
-                        <span className="text-gray-700 font-medium">{username}</span>
+                        <span className="text-gray-700 font-medium">{agent?.agent?.split(' ')[0]}</span>
                         <ChevronDown size={16} className="text-gray-500" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>My Account</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>Profile</DropdownMenuItem>
-                        <DropdownMenuItem>Settings</DropdownMenuItem>
+                        {/**<DropdownMenuItem>Profile</DropdownMenuItem>
+                            <DropdownMenuItem>Settings</DropdownMenuItem>*/}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={async () => {
                             await logout();

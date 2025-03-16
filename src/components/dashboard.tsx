@@ -1,4 +1,5 @@
 // src/components/Dashboard.tsx
+'use client';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -7,13 +8,15 @@ import {
     Flame,
     ShoppingCart
 } from 'lucide-react';
+import {AgentData} from "@/utils/agentCookies";
+import {useRouter} from "next/navigation";
 
 const StatCard = ({
-                      title,
-                      value,
-                      icon,
-                      color
-                  }: {
+  title,
+  value,
+  icon,
+  color
+}: {
     title: string;
     value: number;
     icon: React.ReactNode;
@@ -32,7 +35,8 @@ const StatCard = ({
     </Card>
 );
 
-const Dashboard = () => {
+const Dashboard = ({ agent }: { agent: AgentData }) => {
+    const router = useRouter();
     const stats = [
         {
             title: 'Policies',
@@ -87,7 +91,7 @@ const Dashboard = () => {
                         GibsPartner v1.0 is bringing you closer to your insurance partners
                     </p>
                     <div className="mt-6 bg-black/20 rounded-full p-4 text-center">
-                        <p className="text-xl font-medium">Kunle Joseph</p>
+                        <p className="text-xl font-medium">{agent?.agent}</p>
                     </div>
                 </CardContent>
             </Card>
@@ -115,7 +119,7 @@ const Dashboard = () => {
                             <Briefcase size={24} />
                         </CardContent>
                     </Card>
-                    <Card className="bg-custom-yellow text-white cursor-pointer hover:bg-yellow-600 transition-colors">
+                    <Card onClick={() => router.push('/claims/report-claim')} className="bg-custom-yellow text-white cursor-pointer hover:bg-yellow-600 transition-colors">
                         <CardContent className="p-6 flex items-center justify-between">
                             <p className="font-medium">Submit a Claim</p>
                             <Flame size={24} />
