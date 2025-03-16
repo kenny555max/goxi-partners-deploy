@@ -113,7 +113,7 @@ const Dashboard = ({ agent }: { agent: AgentData }) => {
             <div className="space-y-4">
                 <h2 className="text-xl font-semibold">Quick Actions</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card className="bg-green-600 text-white cursor-pointer hover:bg-green-700 transition-colors">
+                    <Card onClick={() => router.push('/policy/new')}  className="bg-green-600 text-white cursor-pointer hover:bg-green-700 transition-colors">
                         <CardContent className="p-6 flex items-center justify-between">
                             <p className="font-medium">Create New Policy</p>
                             <Briefcase size={24} />
