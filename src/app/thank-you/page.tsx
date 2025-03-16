@@ -5,7 +5,7 @@ const ThankYouPageTemplate = dynamic(() => import("@/components/thank-you-page-c
     ssr: false,
 });
 
-export default async function ThankYouPage()   {
+export default function ThankYouPage()   {
     return(
         <div>
             <ThankYouPageTemplate />
