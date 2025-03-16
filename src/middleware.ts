@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Paths that don't require authentication
-const publicPaths = ['/thank-you'];
+const publicPaths = ['/login', '/register', '/thank-you', '/forgot-password', '/'];
 
 // Protected paths that logged-in users shouldn't access
-const restrictedForLoggedInUsers = ['/', '/login', '/register'];
+const restrictedForLoggedInUsers = ['/login', '/register', '/forgot-password'];
 
 export async function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;
@@ -18,6 +18,8 @@ export async function middleware(request: NextRequest) {
 
     // Get the authentication token from cookies
     const token = request.cookies.get('goxi-auth-token')?.value;
+
+    console.log('Path:', path, 'Token exists:', !!token);
 
     // If the path is restricted for logged-in users and there's a token, redirect to dashboard
     if (isRestrictedForLoggedIn && token) {

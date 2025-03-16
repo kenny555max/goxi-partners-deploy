@@ -1,12 +1,23 @@
 import Header from "@/components/header";
 import Sidebar from "@/components/sidebar";
 import { ToastProvider } from '@/components/ui/toast-provider'
+import { cookies } from 'next/headers';
+import {redirect} from "next/navigation";
 
-export default function RootLayout({
+export default async function RootLayout({
    children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    // Access cookies on the server
+    const agentDataCookie = (await cookies()).get('goxi-auth-token');
+
+    if (!agentDataCookie) {
+        redirect('/login');
+    }
+
+    console.log(JSON.parse(agentDataCookie.value));
+
     return(
         <div>
             <Header title={"Title"} username={"Kenny"} />

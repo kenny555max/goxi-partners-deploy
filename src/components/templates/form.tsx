@@ -161,7 +161,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
 
                 console.log(`${isLoginForm ? 'Login' : 'Agent registration'} successful:`, data);
 
-               router.push(`/thank-you/${data.agentID}`);
+               router.push(`/thank-you?agentId=${data.agentID}`);
             }
         } catch (error) {
             console.log(error);
@@ -278,14 +278,14 @@ const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                             </>
                         )}
 
-                        <Input
+                        {isLoginForm && <Input
                             label="AgentID"
                             type="text"
                             placeholder="Enter AgentId"
                             name="agentID"
                             value={formData.agentID}
                             onChange={handleChange}
-                        />
+                        />}
 
                         {/* Password field - common to both forms */}
                         <Input

@@ -1,18 +1,16 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Check, ArrowRight, Clock, Phone, Mail, FileText, Copy, AlertTriangle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ThankYouPage() {
     const router = useRouter();
-    const pathname = usePathname();
+    const searchParams = new URLSearchParams(window.location.search);
+    const agentId = searchParams.get('agentId');
     const [countdown, setCountdown] = useState(10);
     const [userName, setUserName] = useState('');
-
-    // Extract agent ID from URL path
-    const agentId = pathname?.split('/thank-you/')?.[1] || '';
 
     // Modal state
     const [showModal, setShowModal] = useState(true);
@@ -272,7 +270,7 @@ export default function ThankYouPage() {
                         <div className="mb-4 md:mb-0">
                             <p className="text-gray-500 flex items-center">
                                 <Clock size={16} className="mr-2" />
-                                Redirecting to dashboard in {countdown} seconds
+                                Redirecting to log-in in {countdown} seconds
                             </p>
                         </div>
 
@@ -287,7 +285,7 @@ export default function ThankYouPage() {
                                 href="/dashboard"
                                 className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors flex items-center"
                             >
-                                Go to Dashboard <ArrowRight size={16} className="ml-2" />
+                                Go to Log in <ArrowRight size={16} className="ml-2" />
                             </Link>
                         </div>
                     </motion.div>

@@ -1,4 +1,6 @@
 // components/Header.tsx
+'use client'
+
 import React from 'react';
 import { User, Bell, ChevronDown } from 'lucide-react';
 import {
@@ -9,7 +11,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {clearAgentData} from "@/utils/agentCookies";
+import { logout } from '@/app/actions/auth-actions';
 
 interface HeaderProps {
     title?: string;
@@ -42,7 +44,13 @@ const Header = ({ title, username }: HeaderProps) => {
                         <DropdownMenuItem>Profile</DropdownMenuItem>
                         <DropdownMenuItem>Settings</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => clearAgentData()}>Logout</DropdownMenuItem>
+                        <DropdownMenuItem onClick={async () => {
+                            await logout();
+
+                            window.location.reload();
+                        }}>
+                            Logout
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>

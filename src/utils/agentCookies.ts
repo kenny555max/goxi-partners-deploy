@@ -98,7 +98,7 @@ export function hasAgentData(cookieStore: ReadonlyRequestCookies): boolean {
 
 // Function to clear agent data
 export async function clearAgentData(): Promise<void> {
-    (await cookies()).delete('agent-data');
+    (await cookies()).delete('goxi-auth-token');
     (await cookies()).delete('agent-id');
     (await cookies()).delete('agent-email');
 }
