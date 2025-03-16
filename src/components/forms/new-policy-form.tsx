@@ -1,6 +1,6 @@
 'use client';
 // components/forms/NewPolicyForm.tsx
-import React from "react";
+import React, { useState, ChangeEvent, FormEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,60 +14,292 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
-// Updated the empty string to "default"
-const productOptions = [
+// Define option types
+type SelectOption = {
+    value: string;
+    label: string;
+};
+
+// Define product options
+const productOptions: SelectOption[] = [
     { value: "life", label: "Life Insurance" },
     { value: "health", label: "Health Insurance" },
     { value: "property", label: "Property Insurance" },
     { value: "auto", label: "Auto Insurance" },
 ];
 
-const productTypeOptions = [
+const productTypeOptions: SelectOption[] = [
     { value: "individual", label: "Individual" },
     { value: "family", label: "Family" },
     { value: "group", label: "Group" },
 ];
 
-const stateOptions = [
+const stateOptions: SelectOption[] = [
     { value: "lagos", label: "Lagos" },
     { value: "abuja", label: "Abuja" },
     { value: "oyo", label: "Oyo" },
     // Add more states as needed
 ];
 
-const genderOptions = [
+const genderOptions: SelectOption[] = [
     { value: "male", label: "Male" },
     { value: "female", label: "Female" },
     { value: "other", label: "Other" },
 ];
 
-const maritalStatusOptions = [
+const maritalStatusOptions: SelectOption[] = [
     { value: "single", label: "Single" },
     { value: "married", label: "Married" },
     { value: "divorced", label: "Divorced" },
     { value: "widowed", label: "Widowed" },
 ];
 
-const paymentFrequencyOptions = [
+const paymentFrequencyOptions: SelectOption[] = [
     { value: "monthly", label: "Monthly" },
     { value: "quarterly", label: "Quarterly" },
     { value: "biannually", label: "Biannually" },
     { value: "annually", label: "Annually" },
 ];
 
-const policyCoverTypeOptions = [
+const policyCoverTypeOptions: SelectOption[] = [
     { value: "basic", label: "Basic" },
     { value: "standard", label: "Standard" },
     { value: "premium", label: "Premium" },
     { value: "comprehensive", label: "Comprehensive" },
 ];
 
+// Define the form data type
+interface PolicyFormData {
+    product: string;
+    productType: string;
+    agentEmail: string;
+    sumInsured: string;
+    premium: string;
+    policyType: string;
+    startDate: Date | null;
+    maturityDate: Date | null;
+    frequency: string;
+    surname: string;
+    otherNames: string;
+    customerEmail: string;
+    phoneNo: string;
+    address: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    gender: string;
+    maritalStatus: string;
+    dob: Date | null;
+    terms: boolean;
+}
+
+// API response type
+interface ApiResponse {
+    success: boolean;
+    message?: string;
+    data?: any;
+}
+
 export default function NewPolicyForm() {
-    const handleSubmit = (e: React.FormEvent) => {
+    const { toast } = useToast();
+    const router = useRouter();
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+    // Initialize form data with proper types
+    const [formData, setFormData] = useState<PolicyFormData>({
+        product: "",
+        productType: "",
+        agentEmail: "",
+        sumInsured: "",
+        premium: "",
+        policyType: "",
+        startDate: new Date(),
+        maturityDate: new Date(),
+        frequency: "",
+        surname: "",
+        otherNames: "",
+        customerEmail: "",
+        phoneNo: "",
+        address: "",
+        city: "",
+        state: "",
+        postalCode: "",
+        gender: "",
+        maritalStatus: "",
+        dob: new Date(),
+        terms: false
+    });
+
+    // Handle standard input changes with type safety
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prevData => ({
+            ...prevData,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const handleDateChange = (name: keyof PolicyFormData, date: Date | null) => {
+        setFormData(prevData => ({
+            ...prevData,
+            [name]: date
+        }));
+    };
+
+    // Handle select changes with proper typing
+    const handleSelectChange = (name: keyof PolicyFormData, value: string) => {
+        setFormData(prevData => ({
+            ...prevData,
+            [name]: value
+        }));
+    };
+
+    // Ensure dates are valid SQL Server dates (after 1753-01-01)
+    const validateDates = () => {
+        const minSqlDate = new Date('1753-01-01');
+
+        // Check each date field
+        if (formData.startDate && formData.startDate < minSqlDate) {
+            toast({
+                title: "Invalid Date",
+                description: "Start date must be after January 1, 1753",
+                variant: "destructive"
+            });
+            return false;
+        }
+
+        if (formData.maturityDate && formData.maturityDate < minSqlDate) {
+            toast({
+                title: "Invalid Date",
+                description: "Maturity date must be after January 1, 1753",
+                variant: "destructive"
+            });
+            return false;
+        }
+
+        if (formData.dob && formData.dob < minSqlDate) {
+            toast({
+                title: "Invalid Date",
+                description: "Date of birth must be after January 1, 1753",
+                variant: "destructive"
+            });
+            return false;
+        }
+
+        return true;
+    }
+
+    // Form validation
+    const validateForm = (): boolean => {
+        const requiredFields: (keyof PolicyFormData)[] = [
+            'product', 'productType', 'agentEmail', 'sumInsured',
+            'policyType', 'startDate', 'maturityDate', 'frequency',
+            'surname', 'otherNames', 'customerEmail', 'phoneNo',
+            'address', 'city', 'state', 'gender', 'maritalStatus', 'dob'
+        ];
+
+        const missingFields = requiredFields.filter(field => !formData[field]);
+
+        if (missingFields.length > 0) {
+            toast({
+                title: "Validation Error",
+                description: `Please fill in all required fields: ${missingFields.join(', ')}`,
+                variant: "destructive"
+            });
+            return false;
+        }
+
+        if (!validateDates()) {
+            return false;
+        }
+
+        if (!formData.terms) {
+            toast({
+                title: "Terms Agreement Required",
+                description: "You must agree to the terms and conditions",
+                variant: "destructive"
+            });
+            return false;
+        }
+
+        return true;
+    };
+
+    // Reset form data
+    const resetForm = () => {
+        setFormData({
+            product: "",
+            productType: "",
+            agentEmail: "",
+            sumInsured: "",
+            premium: "",
+            policyType: "",
+            startDate: null,
+            maturityDate: null,
+            frequency: "",
+            surname: "",
+            otherNames: "",
+            customerEmail: "",
+            phoneNo: "",
+            address: "",
+            city: "",
+            state: "",
+            postalCode: "",
+            gender: "",
+            maritalStatus: "",
+            dob: null,
+            terms: false
+        });
+    };
+
+    // Form submission handler
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // Handle form submission logic here
-        console.log("Form submitted");
+
+        if (!validateForm()) return;
+
+        setIsSubmitting(true);
+
+        try {
+            const response = await fetch('/api/policies', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ...formData,
+                    // Convert dates to ISO strings
+                    startDate: formData.startDate ? formData.startDate.toISOString() : null,
+                    maturityDate: formData.maturityDate ? formData.maturityDate.toISOString() : null,
+                    dob: formData.dob ? formData.dob.toISOString() : null,
+                }),
+            });
+
+            const data: ApiResponse = await response.json();
+
+            if (data.success) {
+                toast({
+                    title: "Success",
+                    description: "Policy created successfully!"
+                });
+                // Reset form and redirect to policies list
+                resetForm();
+                router.push('/policies');
+            } else {
+                throw new Error(data.message || 'Failed to create policy');
+            }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: error instanceof Error ? error.message : "An error occurred while creating the policy",
+                variant: "destructive"
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -85,7 +317,12 @@ export default function NewPolicyForm() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <Label htmlFor="product" className="mb-1 block">Product</Label>
-                                        <Select name="product" required>
+                                        <Select
+                                            name="product"
+                                            required
+                                            value={formData.product}
+                                            onValueChange={(value) => handleSelectChange('product', value)}
+                                        >
                                             <SelectTrigger id="product">
                                                 <SelectValue placeholder="Choose..." />
                                             </SelectTrigger>
@@ -100,7 +337,12 @@ export default function NewPolicyForm() {
                                     </div>
                                     <div>
                                         <Label htmlFor="productType" className="mb-1 block">Product Type</Label>
-                                        <Select name="productType" required>
+                                        <Select
+                                            name="productType"
+                                            required
+                                            value={formData.productType}
+                                            onValueChange={(value) => handleSelectChange('productType', value)}
+                                        >
                                             <SelectTrigger id="productType">
                                                 <SelectValue placeholder="Choose..." />
                                             </SelectTrigger>
@@ -122,6 +364,8 @@ export default function NewPolicyForm() {
                                         id="agentEmail"
                                         name="agentEmail"
                                         placeholder="agent@example.com"
+                                        value={formData.agentEmail}
+                                        onChange={handleInputChange}
                                         required
                                     />
                                 </div>
@@ -134,6 +378,8 @@ export default function NewPolicyForm() {
                                             id="sumInsured"
                                             name="sumInsured"
                                             placeholder="0.00"
+                                            value={formData.sumInsured}
+                                            onChange={handleInputChange}
                                             required
                                         />
                                     </div>
@@ -144,6 +390,8 @@ export default function NewPolicyForm() {
                                             id="premium"
                                             name="premium"
                                             placeholder="0.00"
+                                            value={formData.premium}
+                                            onChange={handleInputChange}
                                             required
                                         />
                                     </div>
@@ -151,7 +399,12 @@ export default function NewPolicyForm() {
 
                                 <div>
                                     <Label htmlFor="policyType" className="mb-1 block">Policy Cover Type</Label>
-                                    <Select name="policyType" required>
+                                    <Select
+                                        name="policyType"
+                                        required
+                                        value={formData.policyType}
+                                        onValueChange={(value) => handleSelectChange('policyType', value)}
+                                    >
                                         <SelectTrigger id="policyType">
                                             <SelectValue placeholder="Choose..." />
                                         </SelectTrigger>
@@ -168,17 +421,30 @@ export default function NewPolicyForm() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <Label htmlFor="startDate" className="mb-1 block">Start Date</Label>
-                                        <DatePicker placeholder="Start Date" />
+                                        <DatePicker
+                                            placeholder="Start Date"
+                                            value={formData.startDate || undefined}
+                                            onChange={(date) => handleDateChange('startDate', date || null)}
+                                        />
                                     </div>
                                     <div>
                                         <Label htmlFor="maturityDate" className="mb-1 block">Maturity Date</Label>
-                                        <DatePicker placeholder="Maturity Date" />
+                                        <DatePicker
+                                            placeholder="Maturity Date"
+                                            value={formData.maturityDate || undefined}
+                                            onChange={(date) => handleDateChange('maturityDate', date || null)}
+                                        />
                                     </div>
                                 </div>
 
                                 <div>
                                     <Label htmlFor="frequency" className="mb-1 block">Frequency of Payment</Label>
-                                    <Select name="frequency" required>
+                                    <Select
+                                        name="frequency"
+                                        required
+                                        value={formData.frequency}
+                                        onValueChange={(value) => handleSelectChange('frequency', value)}
+                                    >
                                         <SelectTrigger id="frequency">
                                             <SelectValue placeholder="Choose..." />
                                         </SelectTrigger>
@@ -190,6 +456,27 @@ export default function NewPolicyForm() {
                                             ))}
                                         </SelectContent>
                                     </Select>
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="policyDocuments" className="mb-1 block">Policy Documents</Label>
+                                    <Input
+                                        type="file"
+                                        id="policyDocuments"
+                                        name="policyDocuments"
+                                        onChange={(e) => {
+                                            if (e.target.files) {
+                                                const file = e.target.files[0];
+                                                setFormData(prevData => ({
+                                                    ...prevData,
+                                                    policyDocuments: file
+                                                }));
+                                            }
+                                        }}
+                                        className="cursor-pointer"
+                                        accept=".pdf,.doc,.docx"
+                                    />
+                                    <p className="text-sm text-gray-500 mt-1">Upload policy documents (PDF, DOC, DOCX)</p>
                                 </div>
                             </div>
                         </div>
@@ -206,6 +493,8 @@ export default function NewPolicyForm() {
                                             id="surname"
                                             name="surname"
                                             placeholder="Surname"
+                                            value={formData.surname}
+                                            onChange={handleInputChange}
                                             required
                                         />
                                     </div>
@@ -216,6 +505,8 @@ export default function NewPolicyForm() {
                                             id="otherNames"
                                             name="otherNames"
                                             placeholder="Other Names"
+                                            value={formData.otherNames}
+                                            onChange={handleInputChange}
                                             required
                                         />
                                     </div>
@@ -228,6 +519,8 @@ export default function NewPolicyForm() {
                                         id="customerEmail"
                                         name="customerEmail"
                                         placeholder="customer@example.com"
+                                        value={formData.customerEmail}
+                                        onChange={handleInputChange}
                                         required
                                     />
                                 </div>
@@ -239,6 +532,8 @@ export default function NewPolicyForm() {
                                         id="phoneNo"
                                         name="phoneNo"
                                         placeholder="Phone Number"
+                                        value={formData.phoneNo}
+                                        onChange={handleInputChange}
                                         required
                                     />
                                 </div>
@@ -250,6 +545,8 @@ export default function NewPolicyForm() {
                                         id="address"
                                         name="address"
                                         placeholder="Street Address"
+                                        value={formData.address}
+                                        onChange={handleInputChange}
                                         required
                                     />
                                 </div>
@@ -262,12 +559,19 @@ export default function NewPolicyForm() {
                                             id="city"
                                             name="city"
                                             placeholder="City"
+                                            value={formData.city}
+                                            onChange={handleInputChange}
                                             required
                                         />
                                     </div>
                                     <div>
                                         <Label htmlFor="state" className="mb-1 block">State</Label>
-                                        <Select name="state" required>
+                                        <Select
+                                            name="state"
+                                            required
+                                            value={formData.state}
+                                            onValueChange={(value) => handleSelectChange('state', value)}
+                                        >
                                             <SelectTrigger id="state">
                                                 <SelectValue placeholder="Choose..." />
                                             </SelectTrigger>
@@ -287,6 +591,8 @@ export default function NewPolicyForm() {
                                             id="postalCode"
                                             name="postalCode"
                                             placeholder="Postal Code"
+                                            value={formData.postalCode}
+                                            onChange={handleInputChange}
                                         />
                                     </div>
                                 </div>
@@ -294,7 +600,12 @@ export default function NewPolicyForm() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <Label htmlFor="gender" className="mb-1 block">Gender</Label>
-                                        <Select name="gender" required>
+                                        <Select
+                                            name="gender"
+                                            required
+                                            value={formData.gender}
+                                            onValueChange={(value) => handleSelectChange('gender', value)}
+                                        >
                                             <SelectTrigger id="gender">
                                                 <SelectValue placeholder="Choose..." />
                                             </SelectTrigger>
@@ -309,7 +620,12 @@ export default function NewPolicyForm() {
                                     </div>
                                     <div>
                                         <Label htmlFor="maritalStatus" className="mb-1 block">Marital Status</Label>
-                                        <Select name="maritalStatus" required>
+                                        <Select
+                                            name="maritalStatus"
+                                            required
+                                            value={formData.maritalStatus}
+                                            onValueChange={(value) => handleSelectChange('maritalStatus', value)}
+                                        >
                                             <SelectTrigger id="maritalStatus">
                                                 <SelectValue placeholder="Choose..." />
                                             </SelectTrigger>
@@ -326,14 +642,51 @@ export default function NewPolicyForm() {
 
                                 <div>
                                     <Label htmlFor="dob" className="mb-1 block">Date of Birth</Label>
-                                    <DatePicker placeholder="Date of Birth" />
+                                    <DatePicker
+                                        placeholder="Date of Birth"
+                                        value={formData.dob || undefined}
+                                        onChange={(date) => handleDateChange('dob', date || null)}
+                                    />
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="identificationDocument" className="mb-1 block">Identification Document</Label>
+                                    <Input
+                                        type="file"
+                                        id="identificationDocument"
+                                        name="identificationDocument"
+                                        onChange={(e) => {
+                                            if (e.target.files) {
+                                                const file = e.target.files[0];
+                                                setFormData(prevData => ({
+                                                    ...prevData,
+                                                    identificationDocument: file
+                                                }));
+                                            }
+                                        }}
+                                        className="cursor-pointer"
+                                        accept=".pdf,.jpg,.jpeg,.png"
+                                    />
+                                    <p className="text-sm text-gray-500 mt-1">Upload ID document (PDF, JPG, JPEG, PNG)</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div className="mt-6 flex items-center">
-                        <Checkbox id="terms" name="terms" className="mr-2" required />
+                        <Checkbox
+                            id="terms"
+                            name="terms"
+                            className="mr-2"
+                            checked={formData.terms}
+                            onChange={(e) => {
+                                setFormData(prevData => ({
+                                    ...prevData,
+                                    terms: e.target.checked
+                                }));
+                            }}
+                            required
+                        />
                         <Label htmlFor="terms" className="text-sm">
                             I agree to Terms and Conditions
                         </Label>
@@ -342,10 +695,21 @@ export default function NewPolicyForm() {
 
                 <CardFooter className="border-t border-slate-200 bg-slate-50 px-6 py-4">
                     <div className="flex justify-end w-full">
-                        <Button variant="outline" type="button" className="mr-2">
+                        <Button
+                            variant="outline"
+                            type="button"
+                            className="mr-2"
+                            onClick={() => resetForm()}
+                            disabled={isSubmitting}
+                        >
                             Cancel
                         </Button>
-                        <Button type="submit">Create Policy</Button>
+                        <Button
+                            type="submit"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? 'Creating...' : 'Create Policy'}
+                        </Button>
                     </div>
                 </CardFooter>
             </form>

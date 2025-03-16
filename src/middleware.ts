@@ -5,7 +5,7 @@ import type { NextRequest } from 'next/server';
 const publicPaths = ['/login', '/register', '/thank-you', '/forgot-password', '/'];
 
 // Protected paths that logged-in users shouldn't access
-const restrictedForLoggedInUsers = ['/login', '/register', '/forgot-password'];
+const restrictedForLoggedInUsers = ['/login', '/register', '/forgot-password', '/'];
 
 export async function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;

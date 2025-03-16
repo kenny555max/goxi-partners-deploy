@@ -6,11 +6,11 @@ export default async function DashboardPage(){
     // Access cookies on the server
     const agentDataCookie = (await cookies()).get('goxi-auth-token');
 
-    if (!agentDataCookie) {
+    if (!agentDataCookie?.value) {
         redirect('/login');
     }
 
-    const agentValue = JSON.parse(agentDataCookie.value);
+    const agentValue = JSON.parse(agentDataCookie?.value);
 
     return(
         <div>
