@@ -1,20 +1,21 @@
-// app/api/agents/[agentId]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { saveAgentDataToCookies, AgentData } from '@/utils/agentCookies';
 
 const API_URL = "http://microlifetestapi.newgibsonline.com";
 
+// Update the type definition for the route handler
 export async function GET(
     request: NextRequest,
-    { params }: { params: { agentId: string } }
 ) {
     try {
-        // Get the agent ID from the route parameter or use a default
-        const agentId = params.agentId || '410009403';
+        const url = new URL(request.url);
+        //console.log(url);
+        const agentId = url.pathname.split('/')[3];
 
         // Check if token exists in cookies
-        const token = (await cookies()).get('goxi-token');
+        const cookieStore = cookies();
+        const token = (await cookieStore).get('goxi-token');
 
         let accessToken = null;
 
@@ -41,7 +42,7 @@ export async function GET(
             const authData = await authResponse.json();
 
             // Set token in cookies
-            (await cookies()).set({
+            (await cookieStore).set({
                 name: 'goxi-token',
                 value: authData.accessToken,
                 httpOnly: true,

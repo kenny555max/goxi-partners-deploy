@@ -67,6 +67,8 @@ export const PopoverTrigger: React.FC<PopoverTriggerProps> = ({
 
     if (asChild && React.isValidElement(children)) {
         return React.cloneElement(children as React.ReactElement, {
+            // eslint-disable-next-line
+            // @ts-ignore
             ref: triggerRef,
             onClick: handleClick,
             "aria-expanded": open,

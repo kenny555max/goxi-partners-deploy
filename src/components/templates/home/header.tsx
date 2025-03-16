@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -31,13 +32,13 @@ const Header = () => {
                     <div className="flex justify-end items-center gap-4 text-white text-sm">
                         <div className="flex phone items-center gap-2">
               <span>
-                <img src="/assets/phone.png" alt="phone-icon" />
+                <Image width={100} height={100} src="/assets/phone.png" alt="phone-icon" />
               </span>
                             <span>+2349029111359</span>
                         </div>
                         <div className="flex chat items-center gap-2">
               <span>
-                <img src="/assets/chat.png" alt="chat-icon" />
+                <Image width={100} height={100} src="/assets/chat.png" alt="chat-icon" />
               </span>
                             <span>Chat support 24/7</span>
                         </div>
@@ -49,7 +50,7 @@ const Header = () => {
             <nav id="bottom-header" className="bg-white bottom-header lg:h-[60px] shadow-md">
                 <div className="lg:h-[60px] header-inner mx-auto py-2 flex justify-between items-center">
                     <a href="#" className="text-red-600 flex-shrink-0 text-2xl font-bold">
-                        <img src="/assets/logo.png" alt="goxi-logo" width={100} height={100} />
+                        <Image src="/assets/logo.png" alt="goxi-logo" width={100} height={100} />
                     </a>
 
                     <div className="hidden top-header-links lg:flex space-x-4">

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import HeroSlider from "@/components/templates/home/hero/slider";
 import { IoMdArrowForward } from "react-icons/io";
 import MaxWidthWrapper from "@/components/container/max-width-wrapper";
+import Image from 'next/image';
 
 /**
  * @file HeroComp.tsx
@@ -67,25 +68,25 @@ export const SliderContentOne = memo(() => {
                     className="hero-icons mt-4">
                     <div className="icon-card">
                         <div className="icon-img">
-                            <img src="/assets/green-naira.png" alt="naira-icon"/>
+                            <Image width={100} height={100} src="/assets/green-naira.png" alt="naira-icon"/>
                         </div>
                         <span>Micro Loan Protection</span>
                     </div>
                     <div className="icon-card">
                         <div className="icon-img">
-                            <img src="/assets/hand-plus.png" alt="hand-icon"/>
+                            <Image width={100} height={100} src="/assets/hand-plus.png" alt="hand-icon"/>
                         </div>
                         <span>Cooperative Insurance</span>
                     </div>
                     <div className="icon-card">
                         <div className="icon-img">
-                            <img src="/assets/bike.png" alt="bike-icon"/>
+                            <Image width={100} height={100} src="/assets/bike.png" alt="bike-icon"/>
                         </div>
                         <span>Tricycle/Okada Business Insurance</span>
                     </div>
                     <div className="icon-card">
                         <div className="icon-img">
-                            <img src="/assets/tractor.png" alt="tractor-icon"/>
+                            <Image width={100} height={100} src="/assets/tractor.png" alt="tractor-icon"/>
                         </div>
                         <span>Agro Micro Insurance</span>
                     </div>
@@ -152,25 +153,25 @@ export const SliderContentTwo = memo(() => {
                     className="hero-icons mt-4">
                     <div className="icon-card">
                         <div className="icon-img">
-                            <img src="/assets/green-naira.png" alt="naira-icon"/>
+                            <Image width={100} height={100} src="/assets/green-naira.png" alt="naira-icon"/>
                         </div>
                         <span>Micro Loan Protection</span>
                     </div>
                     <div className="icon-card">
                         <div className="icon-img">
-                            <img src="/assets/hand-plus.png" alt="hand-icon"/>
+                            <Image width={100} height={100} src="/assets/hand-plus.png" alt="hand-icon"/>
                         </div>
                         <span>Cooperative Insurance</span>
                     </div>
                     <div className="icon-card">
                         <div className="icon-img">
-                            <img src="/assets/bike.png" alt="bike-icon"/>
+                            <Image width={100} height={100} src="/assets/bike.png" alt="bike-icon"/>
                         </div>
                         <span>Tricycle/Okada Business Insurance</span>
                     </div>
                     <div className="icon-card">
                         <div className="icon-img">
-                            <img src="/assets/tractor.png" alt="tractor-icon"/>
+                            <Image width={100} height={100} src="/assets/tractor.png" alt="tractor-icon"/>
                         </div>
                         <span>Agro Micro Insurance</span>
                     </div>
@@ -231,25 +232,25 @@ export const SliderContentThree = memo(() => {
                     className="hero-icons mt-4">
                     <div className="icon-card">
                         <div className="icon-img">
-                            <img src="/assets/green-naira.png" alt="naira-icon"/>
+                            <Image width={100} height={100} src="/assets/green-naira.png" alt="naira-icon"/>
                         </div>
                         <span>Micro Loan Protection</span>
                     </div>
                     <div className="icon-card">
                         <div className="icon-img">
-                            <img src="/assets/hand-plus.png" alt="hand-icon"/>
+                            <Image width={100} height={100} src="/assets/hand-plus.png" alt="hand-icon"/>
                         </div>
                         <span>Cooperative Insurance</span>
                     </div>
                     <div className="icon-card">
                         <div className="icon-img">
-                            <img src="/assets/bike.png" alt="bike-icon"/>
+                            <Image width={100} height={100} src="/assets/bike.png" alt="bike-icon"/>
                         </div>
                         <span>Tricycle/Okada Business Insurance</span>
                     </div>
                     <div className="icon-card">
                         <div className="icon-img">
-                            <img src="/assets/tractor.png" alt="tractor-icon"/>
+                            <Image width={100} height={100} src="/assets/tractor.png" alt="tractor-icon"/>
                         </div>
                         <span>Agro Micro Insurance</span>
                     </div>

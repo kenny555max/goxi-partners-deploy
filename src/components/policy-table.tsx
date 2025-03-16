@@ -36,7 +36,8 @@ interface Policy {
 }
 
 interface PolicyTableProps {
-    policies: unknown[];
+    // eslint-disable-next-line
+    policies: any[];
 }
 
 const StatusBadge = ({ status }: { status: Policy['status'] }) => {
@@ -75,7 +76,8 @@ const PolicyTable = ({ policies }: PolicyTableProps) => {
     const totalPages = Math.ceil(filteredPolicies.length / pageSize);
 
     // Helper function to convert policies to CSV format
-    const convertToCSV = (policies: unknown[]) => {
+    // eslint-disable-next-line
+    const convertToCSV = (policies: any[]) => {
         const headers = ['Policy No', 'Product', 'Insured', 'Period of Cover', 'FOP', 'Premium', 'Sum Insured', 'Status', 'Trans Date'];
         const csvRows = [
             headers.join(','),
