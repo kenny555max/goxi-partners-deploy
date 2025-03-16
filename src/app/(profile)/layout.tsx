@@ -1,8 +1,8 @@
-import Header from "@/components/header";
-import Sidebar from "@/components/sidebar";
 import { ToastProvider } from '@/components/ui/toast-provider'
 import { cookies } from 'next/headers';
 import {redirect} from "next/navigation";
+import {Navigation} from "lucide-react";
+import NavigationComp from "@/components/navigation";
 
 export default async function RootLayout({
    children,
@@ -20,8 +20,7 @@ export default async function RootLayout({
 
     return(
         <div>
-            <Header agent={agentValue} />
-            <Sidebar />
+            <NavigationComp agentValue={agentValue} />
             <div className="md:ml-64">
                 {children}
                 <ToastProvider />

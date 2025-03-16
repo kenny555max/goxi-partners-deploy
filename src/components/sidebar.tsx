@@ -56,7 +56,7 @@ const SidebarItem = ({ icon, text, href, subItems }: SidebarItemProps) => {
     );
 };
 
-const Sidebar = () => {
+const Sidebar = ({ toggleSidebar, handleSidebarToggle }: { toggleSidebar: boolean; handleSidebarToggle: any }) => {
     const sidebarItems: SidebarItemProps[] = [
         {
             icon: <Home size={20} />,
@@ -99,9 +99,10 @@ const Sidebar = () => {
     ];
 
     return (
-        <div className="bg-gray-800 w-0 md:w-64 h-screen fixed left-0 top-0 overflow-y-auto">
-            <div className="bg-blue-500 py-4 px-6">
+        <div className={`bg-gray-800 animate-in animate-out z-50 ${toggleSidebar && "w-64"} w-0 md:w-64 h-screen fixed left-0 top-0 overflow-y-auto`}>
+            <div className="bg-blue-500 flex items-center justify-between py-4 px-6">
                 <h1 className="text-white font-bold text-xl">PARTNERS PLATFORM</h1>
+                <button className="md:hidden text-white block" onClick={() => handleSidebarToggle(false)}>X</button>
             </div>
 
             <nav className="mt-6 px-4 space-y-2">

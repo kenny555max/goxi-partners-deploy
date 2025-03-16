@@ -2,7 +2,7 @@
 'use client'
 
 import React from 'react';
-import { User, Bell, ChevronDown } from 'lucide-react';
+import { User, Bell, ChevronDown, MenuIcon } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,14 +17,15 @@ import Image from "next/image";
 import Link from "next/link";
 
 interface HeaderProps {
-    agent: AgentData
+    agent: AgentData;
+    handleSidebarToggle: any;
 }
 
-const Header = ({ agent }: HeaderProps) => {
+const Header = ({ agent, handleSidebarToggle }: HeaderProps) => {
     return (
         <div className="w-full px-6 py-4 md:pl-64 bg-white border-b border-gray-200 flex justify-between items-center">
             <div>
-                <Link href={"/dashboard"} className="text-red-600 flex-shrink-0 text-2xl font-bold">
+                <Link href={"/dashboard"} className="text-red-600 block flex-shrink-0 text-2xl font-bold">
                     <Image src={"/assets/logo.png"} alt={"goxi-logo"} width={100} height={100} />
                 </Link>
             </div>
@@ -57,6 +58,10 @@ const Header = ({ agent }: HeaderProps) => {
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
+
+                <div className="block md:hidden mt-3">
+                    <button onClick={() => handleSidebarToggle(true)}><MenuIcon /></button>
+                </div>
             </div>
         </div>
     );
