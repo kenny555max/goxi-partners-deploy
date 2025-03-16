@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "./button";
 
@@ -17,8 +17,9 @@ export const Calendar: React.FC<CalendarProps> = ({
   initialFocus = false,
   className,
 }) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [currentMonth, setCurrentMonth] = useState(new Date());
     console.log(mode, initialFocus)
-    const [currentMonth, setCurrentMonth] = React.useState(new Date());
 
     const getDaysInMonth = (year: number, month: number) => {
         return new Date(year, month + 1, 0).getDate();
