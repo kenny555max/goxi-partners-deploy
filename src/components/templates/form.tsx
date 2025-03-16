@@ -13,7 +13,7 @@ type HeroProps = {
     imageSrc: string;
     imageAlt?: string;
     overlayOpacity?: number;
-    formType: string; // Added formType to determine the form's behavior
+    formType: string;
 };
 
 // Form Props
@@ -30,6 +30,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
         fullName: '',
         email: '',
         phone1: '',
+        agentID: '',
         phone2: '',
         address: '',
         area: '',
@@ -59,8 +60,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
         // Validation differs based on form type
         if (isLoginForm) {
             // Login validation
-            const { email, password } = formData;
-            if (!email || !password) {
+            const { email, password, agentID } = formData;
+            if (!email || !password || !agentID) {
                 setError("Email and password are required");
                 return;
             }
@@ -97,6 +98,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                 agent: isLoginForm ? "Default Agent" : formData.fullName,
                 address: isLoginForm ? "Default Address" : formData.address,
                 area: isLoginForm ? "" : (formData.area || ""),
+                agentId: isLoginForm ? (formData.agentID || "") : "",
                 city: isLoginForm ? "" : (formData.city || ""),
                 state: isLoginForm ? "" : (formData.state || ""),
                 phone1: isLoginForm ? "0000000000" : formData.phone1,
@@ -116,29 +118,50 @@ const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                 modifiedBy: ""
             };
 
-            // Same endpoint for both login and register
-            const response = await fetch("/api/agents", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(agentData)
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw { message: data?.error || `Failed to ${isLoginForm ? 'login' : 'create agent'}` }
-            }
-
-            console.log(`${isLoginForm ? 'Login' : 'Agent registration'} successful:`, data);
-
             // For login, show success message instead of redirecting
             if (isLoginForm) {
+                // check if agent is registered
+                const check_agent_response = await fetch(`/api/agents/${agentData.agentId}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                });
+
+                const check_agent_data = await check_agent_response.json();
+
+                if (!check_agent_response.ok) {
+                    throw { message: `Failed to ${isLoginForm ? 'login' : 'create agent'}` }
+                }
+
+                console.log(check_agent_data);
+
+                if (!check_agent_data?.success){
+                    console.log(check_agent_data);
+                    return;
+                }
+
                 setError("");
-                alert("Login successful!");
+                router.push("/dashboard");
             } else {
-                router.push("/thank-you");
+                // Same endpoint for both login and register
+                const response = await fetch("/api/agents", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(agentData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw { message: data?.error || `Failed to ${isLoginForm ? 'login' : 'create agent'}` }
+                }
+
+                console.log(`${isLoginForm ? 'Login' : 'Agent registration'} successful:`, data);
+
+               router.push(`/thank-you?agentId=${data.agentID}`);
             }
         } catch (error) {
             console.log(error);
@@ -254,6 +277,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                                 />
                             </>
                         )}
+
+                        {isLoginForm && <Input
+                            label="AgentID"
+                            type="text"
+                            placeholder="Enter AgentId"
+                            name="agentID"
+                            value={formData.agentID}
+                            onChange={handleChange}
+                        />}
 
                         {/* Password field - common to both forms */}
                         <Input
