@@ -67,7 +67,6 @@ export const PopoverTrigger: React.FC<PopoverTriggerProps> = ({
 
     if (asChild && React.isValidElement(children)) {
         return React.cloneElement(children as React.ReactElement, {
-            // @ts-expect-error
             ref: triggerRef,
             onClick: handleClick,
             "aria-expanded": open,
