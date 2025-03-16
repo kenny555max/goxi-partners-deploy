@@ -1,7 +1,7 @@
 // components/Header.tsx
 'use client'
 
-import React from 'react';
+import React, {Dispatch} from 'react';
 import { User, Bell, ChevronDown, MenuIcon } from 'lucide-react';
 import {
     DropdownMenu,
@@ -18,7 +18,7 @@ import Link from "next/link";
 
 interface HeaderProps {
     agent: AgentData;
-    handleSidebarToggle: any;
+    handleSidebarToggle: Dispatch<React.SetStateAction<boolean>>;
 }
 
 const Header = ({ agent, handleSidebarToggle }: HeaderProps) => {

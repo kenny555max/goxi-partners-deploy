@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
 
             // Mock URL for demonstration
             fileUrl = `/uploads/${fileName}`;
+            console.log(fileUrl);
         }
 
         // Create claim in database

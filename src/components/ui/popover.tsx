@@ -3,8 +3,8 @@ import * as React from "react";
 interface PopoverContextValue {
     open: boolean;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    triggerRef: React.RefObject<HTMLButtonElement>;
-    contentRef: React.RefObject<HTMLDivElement>;
+    triggerRef: React.RefObject<HTMLButtonElement | null>;
+    contentRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const PopoverContext = React.createContext<PopoverContextValue | undefined>(undefined);
@@ -67,7 +67,7 @@ export const PopoverTrigger: React.FC<PopoverTriggerProps> = ({
 
     if (asChild && React.isValidElement(children)) {
         return React.cloneElement(children as React.ReactElement, {
-            // @ts-ignore
+            // @ts-expect-error
             ref: triggerRef,
             onClick: handleClick,
             "aria-expanded": open,

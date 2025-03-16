@@ -36,7 +36,7 @@ const GroupMembersUpload: React.FC = () => {
     };
 
     // Convert Excel file to array of objects
-    const convertExcelToArray = async (file: File): Promise<any[]> => {
+    const convertExcelToArray = async (file: File): Promise<unknown[]> => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
 

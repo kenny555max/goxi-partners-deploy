@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, {Dispatch, useState} from 'react';
 import Link from 'next/link';
 import {
     Home,
@@ -56,7 +56,10 @@ const SidebarItem = ({ icon, text, href, subItems }: SidebarItemProps) => {
     );
 };
 
-const Sidebar = ({ toggleSidebar, handleSidebarToggle }: { toggleSidebar: boolean; handleSidebarToggle: any }) => {
+const Sidebar = ({ toggleSidebar, handleSidebarToggle }: {
+    toggleSidebar: boolean;
+    handleSidebarToggle: Dispatch<React.SetStateAction<boolean>>;
+}) => {
     const sidebarItems: SidebarItemProps[] = [
         {
             icon: <Home size={20} />,
