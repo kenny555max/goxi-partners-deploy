@@ -25,23 +25,19 @@ type SelectOption = {
 
 // Define product options
 const productOptions: SelectOption[] = [
-    { value: "life", label: "Life Insurance" },
-    { value: "health", label: "Health Insurance" },
-    { value: "property", label: "Property Insurance" },
-    { value: "auto", label: "Auto Insurance" },
+    { value: "asset", label: "ASSET PROTECTION" },
+    { value: "family", label: "GOXI FAMILY WELFARE INSURANCE" },
+    { value: "sure", label: "GOXI 4 SURE" },
+    { value: "ma", label: "MA BUSINESS" },
+    { value: "micro", label: "MICRO LEASING PROTECTION" }
 ];
 
 const productTypeOptions: SelectOption[] = [
-    { value: "individual", label: "Individual" },
-    { value: "family", label: "Family" },
-    { value: "group", label: "Group" },
+    { value: "individual", label: "None | SI O | AP O | MP O" }
 ];
 
 const stateOptions: SelectOption[] = [
-    { value: "lagos", label: "Lagos" },
-    { value: "abuja", label: "Abuja" },
-    { value: "oyo", label: "Oyo" },
-    // Add more states as needed
+    { value: "lagos", label: "Lagos" }
 ];
 
 const genderOptions: SelectOption[] = [
@@ -59,16 +55,14 @@ const maritalStatusOptions: SelectOption[] = [
 
 const paymentFrequencyOptions: SelectOption[] = [
     { value: "monthly", label: "Monthly" },
-    { value: "quarterly", label: "Quarterly" },
-    { value: "biannually", label: "Biannually" },
     { value: "annually", label: "Annually" },
 ];
 
 const policyCoverTypeOptions: SelectOption[] = [
-    { value: "basic", label: "Basic" },
-    { value: "standard", label: "Standard" },
-    { value: "premium", label: "Premium" },
-    { value: "comprehensive", label: "Comprehensive" },
+    { value: "basic", label: "Asset Protection Basic Cover" },
+    { value: "additional", label: "Asset Protection Additional Cover" },
+    { value: "ml-basic", label: "Micro Leasing Basic Cover" },
+    { value: "ml-extension", label: "Micro Leasing Extension" },
 ];
 
 // Define the form data type
