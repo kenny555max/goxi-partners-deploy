@@ -340,8 +340,8 @@ const PolicyTable = ({ policies }: PolicyTableProps) => {
                                         <TableCell>{policy.insured}</TableCell>
                                         <TableCell>{policy.periodOfCover}</TableCell>
                                         <TableCell>{policy.fop}</TableCell>
-                                        <TableCell>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(policy.premium)}</TableCell>
-                                        <TableCell>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(policy.sumInsured)}</TableCell>
+                                        <TableCell>{new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(policy.premium)}</TableCell>
+                                        <TableCell>{new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(policy.sumInsured)}</TableCell>
                                         <TableCell><StatusBadge status={policy.status} /></TableCell>
                                         <TableCell>{policy.transDate}</TableCell>
                                         <TableCell>
