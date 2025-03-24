@@ -68,11 +68,11 @@ const Sidebar = ({ toggleSidebar, handleSidebarToggle }: {
         },
         {
             icon: <Briefcase size={20} />,
-            text: 'Policy',
-            href: '/policy',
+            text: 'Individual Policy',
+            href: '/individual-policy',
             subItems: [
-                { text: 'New', href: '/policy/new' },
-                { text: 'Existing', href: '/policy/all' }
+                { text: 'New', href: '/individual-policy/new' },
+                { text: 'Existing', href: '/individual-policy/all' }
             ]
         },
         {
@@ -80,8 +80,8 @@ const Sidebar = ({ toggleSidebar, handleSidebarToggle }: {
             text: 'Group Policy',
             href: '/group-policy',
             subItems: [
-                { text: 'Individual Life', href: '/group-policy/individual-life' },
-                { text: 'Group Life', href: '/group-policy/group-life' },
+                { text: 'New', href: '/group-policy/new' },
+                { text: 'Existing', href: '/group-policy/group-life' },
                 { text: 'Direct Upload', href: '/group-policy/direct-upload' }
             ]
         },
