@@ -54,6 +54,7 @@ const ClaimStatusChecker: React.FC = () => {
             const date = new Date(dateString);
             return format(date, 'dd/MM/yyyy');
         } catch (error) {
+            console.log(error);
             return 'Invalid Date';
         }
     };
@@ -66,7 +67,10 @@ const ClaimStatusChecker: React.FC = () => {
         try {
             // Build query string from search parameters (filtering out empty values)
             const queryParams = Object.entries(searchParams)
-                .filter(([_, value]) => value !== '')
+                .filter(([_, value]) => {
+                    console.log(_);
+                    return value !== ''
+                })
                 .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
                 .join('&');
 
