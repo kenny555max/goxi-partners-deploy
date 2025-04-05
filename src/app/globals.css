@@ -15,7 +15,7 @@
 }
 
 body {
-  color: var(--foreground);
+  color: black;
   background: #ffffff !important;
   font-family: Arial, Helvetica, sans-serif;
 }

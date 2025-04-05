@@ -1,6 +1,6 @@
 'use client';
 // components/forms/NewPolicyForm.tsx
-import React, { useState, ChangeEvent, FormEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +16,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 // Define option types
 type SelectOption = {
@@ -23,15 +24,15 @@ type SelectOption = {
     label: string;
 };
 
-// Define product options
-const productOptions: SelectOption[] = [
-    { value: "asset", label: "ASSET PROTECTION" },
-    { value: "family", label: "GOXI FAMILY WELFARE INSURANCE" },
-    { value: "sure", label: "GOXI 4 SURE" },
-    { value: "ma", label: "MA BUSINESS" },
-    { value: "micro", label: "MICRO LEASING PROTECTION" }
-];
+// Define product interface from API
+interface Product {
+    riskID: string;
+    productID: string;
+    productName: string;
+    description: string;
+}
 
+// Define other option arrays
 const productTypeOptions: SelectOption[] = [
     { value: "individual", label: "None | SI O | AP O | MP O" }
 ];
@@ -97,10 +98,12 @@ interface ApiResponse {
     data?: unknown;
 }
 
-export default function NewPolicyForm() {
+export default function NewPolicyForm({ agentValue }: { agentValue?: any }) {
     const { toast } = useToast();
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [isLoadingProducts, setIsLoadingProducts] = useState<boolean>(true);
+    const [products, setProducts] = useState<SelectOption[]>([]);
 
     // Initialize form data with proper types
     const [formData, setFormData] = useState<PolicyFormData>({
@@ -126,6 +129,54 @@ export default function NewPolicyForm() {
         dob: new Date(),
         terms: false
     });
+
+    // Fetch products on component mount
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    // Function to fetch products from API
+    const fetchProducts = async () => {
+        setIsLoadingProducts(true);
+        try {
+            const response = await fetch('/api/products');
+            if (!response.ok) {
+                throw new Error('Failed to fetch products');
+            }
+
+            const data = await response.json();
+
+            if (data.products && Array.isArray(data.products)) {
+                // Transform API products to SelectOption format
+                const productOptions = data.products.map((product: Product) => ({
+                    value: product.productID,
+                    label: product.productName
+                }));
+
+                setProducts(productOptions);
+            } else {
+                // Handle empty or invalid response
+                setProducts([]);
+                console.error('Invalid products data received:', data);
+                toast({
+                    title: "Warning",
+                    description: "Could not load product list. Using default values.",
+                    variant: "destructive"
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            toast({
+                title: "Error",
+                description: "Failed to load products. Please try again later.",
+                variant: "destructive"
+            });
+            // Set empty products array on error
+            setProducts([]);
+        } finally {
+            setIsLoadingProducts(false);
+        }
+    };
 
     // Handle standard input changes with type safety
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -265,6 +316,7 @@ export default function NewPolicyForm() {
                 },
                 body: JSON.stringify({
                     ...formData,
+                    agentID: agentValue?.agentID,
                     // Convert dates to ISO strings
                     startDate: formData.startDate ? formData.startDate.toISOString() : null,
                     maturityDate: formData.maturityDate ? formData.maturityDate.toISOString() : null,
@@ -316,16 +368,30 @@ export default function NewPolicyForm() {
                                             required
                                             value={formData.product}
                                             onValueChange={(value) => handleSelectChange('product', value)}
+                                            disabled={isLoadingProducts}
                                         >
                                             <SelectTrigger id="product">
-                                                <SelectValue placeholder="Choose..." />
+                                                {isLoadingProducts ? (
+                                                    <div className="flex items-center">
+                                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                                        <span>Loading products...</span>
+                                                    </div>
+                                                ) : (
+                                                    <SelectValue placeholder="Choose..." />
+                                                )}
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {productOptions.map((option) => (
-                                                    <SelectItem key={option.value} value={option.value}>
-                                                        {option.label}
+                                                {products.length > 0 ? (
+                                                    products.map((option) => (
+                                                        <SelectItem key={option.value} value={option.value}>
+                                                            {option.label}
+                                                        </SelectItem>
+                                                    ))
+                                                ) : (
+                                                    <SelectItem value="no-products" disabled>
+                                                        No products available
                                                     </SelectItem>
-                                                ))}
+                                                )}
                                             </SelectContent>
                                         </Select>
                                     </div>

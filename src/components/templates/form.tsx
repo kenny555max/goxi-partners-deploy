@@ -134,8 +134,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                     throw { message: `Failed to ${isLoginForm ? 'login' : 'create agent'}` }
                 }
 
-                console.log(check_agent_data);
-
                 if (!check_agent_data?.success){
                     console.log(check_agent_data);
                     return;
@@ -159,7 +157,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                     throw { message: data?.error || `Failed to ${isLoginForm ? 'login' : 'create agent'}` }
                 }
 
-                console.log(`${isLoginForm ? 'Login' : 'Agent registration'} successful:`, data);
+                //console.log(`${isLoginForm ? 'Login' : 'Agent registration'} successful:`, data);
 
                router.push(`/thank-you?agentId=${data.agentID}`);
             }

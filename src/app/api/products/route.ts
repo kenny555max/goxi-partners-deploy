@@ -3,8 +3,24 @@ import { NextRequest, NextResponse } from "next/server";
 
 const API_URL = "https://microlifeapi.gibsonline.com";
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
     try {
+        // Extract query parameters
+        const { searchParams } = new URL(request.url);
+        const searchText = searchParams.get('searchText');
+        const dateFrom = searchParams.get('dateFrom');
+        const dateTo = searchParams.get('dateTo');
+        const pageNo = searchParams.get('pageNo');
+        const pageSize = searchParams.get('pageSize');
+
+        // Construct query string
+        const queryParams = new URLSearchParams();
+        if (searchText) queryParams.append('searchText', searchText);
+        if (dateFrom) queryParams.append('dateFrom', dateFrom);
+        if (dateTo) queryParams.append('dateTo', dateTo);
+        if (pageNo) queryParams.append('pageNo', pageNo);
+        if (pageSize) queryParams.append('pageSize', pageSize);
+
         // Check if token exists in cookies
         const token = (await cookies()).get('goxi-token');
 
@@ -77,22 +93,19 @@ export async function POST(request: NextRequest) {
             accessToken = token.value;
         }
 
-        // Get agent data from request body
-        const agentData = await request.json();
-
-        // Make request to create agent
-        const response = await fetch(`${API_URL}/api/v1/Agents`, {
-            method: "POST",
+        // Make request to fetch products
+        const productsUrl = `${API_URL}/api/v1/Products${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+        const response = await fetch(productsUrl, {
+            method: "GET",
             headers: {
-                "Content-Type": "application/json",
                 "Authorization": `Bearer ${accessToken}`
             },
-            body: JSON.stringify(agentData),
+            next: { revalidate: 300 } // Cache for 5 minutes
         });
 
-        // Safely handle agent creation response
+        // Safely handle products response
         if (!response.ok) {
-            let errorMessage = "Failed to create agent";
+            let errorMessage = "Failed to fetch products";
             try {
                 const contentType = response.headers.get("content-type");
                 if (contentType && contentType.includes("application/json")) {
@@ -118,14 +131,15 @@ export async function POST(request: NextRequest) {
             if (contentType && contentType.includes("application/json")) {
                 const responseText = await response.text();
                 if (!responseText.trim()) {
-                    return NextResponse.json({ message: "Agent created successfully (empty response)" });
+                    return NextResponse.json({ products: [] });
                 }
 
                 const data = JSON.parse(responseText);
-                return NextResponse.json(data);
+                return NextResponse.json({ products: data });
             } else {
                 return NextResponse.json({
-                    message: "Agent created successfully",
+                    products: [],
+                    message: "No products found or invalid response format",
                     contentType: contentType || "none"
                 });
             }
@@ -138,9 +152,9 @@ export async function POST(request: NextRequest) {
             );
         }
     } catch (error) {
-        console.error("Error creating agent:", error);
+        console.error("Error fetching products:", error);
         return NextResponse.json(
-            { error: "Failed to create agent" },
+            { error: "Failed to fetch products" },
             { status: 500 }
         );
     }

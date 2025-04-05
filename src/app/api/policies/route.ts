@@ -1,79 +1,88 @@
 // app/api/policies/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import {cookies} from "next/headers";
+import { cookies } from "next/headers";
 
-// Define interfaces for type safety
-interface RequestData {
-    proposalNo?: string;
-    brCode?: string;
-    tDate?: string;
-    propDate?: string;
-    assDate?: string;
-    product?: string;
-    productType?: string;
-    title?: string;
-    assuredCode?: string;
-    surname?: string;
-    otherNames?: string;
-    address?: string;
-    state?: string;
-    landphone?: string;
-    phoneNo?: string;
-    customerEmail?: string;
-    nationalID?: string;
-    occupation?: string;
-    gender?: string;
-    maritalStatus?: string;
-    country?: string;
-    agentCode?: string;
-    agentDescription?: string;
+// Define interface to match the expected API format
+interface PolicyRequestData {
+    policyNo?: string;
+    coPolicyNo?: string;
+    insured: {
+        title?: string;
+        lastName?: string;
+        firstName?: string;
+        otherName?: string;
+        gender?: string;
+        email?: string;
+        address?: string;
+        phoneLine1?: string;
+        phoneLine2?: string;
+        isOrg?: boolean;
+        orgName?: string;
+        orgRegNumber?: string;
+        orgRegDate?: string;
+        password?: string;
+        cityLGA?: string;
+        stateID?: string;
+        nationality?: string;
+        dateOfBirth?: string;
+        kycType?: string;
+        kycNumber?: string;
+        kycIssueDate?: string;
+        kycExpiryDate?: string;
+        nextOfKin?: {
+            title?: string;
+            lastName?: string;
+            firstName?: string;
+            otherName?: string;
+            gender?: string;
+            email?: string;
+            address?: string;
+            phoneLine1?: string;
+            phoneLine2?: string;
+        };
+    };
+    branchID?: string;
+    agentID?: string;
+    customerID?: string;
+    productID?: string;
+    bizSource?: string;
     startDate?: string;
-    maturityDate?: string;
-    dob?: string;
-    frequency?: string;
-    mop?: string;
-    sumInsured?: string;
+    endDate?: string;
+    sumInsured?: number;
+    grossPremium?: number;
 }
 
-interface FormattedData {
-    proposalNo: string;
-    brCode: string;
-    tDate: string;
-    propDate: string;
-    assDate: string;
-    coverCode: string;
-    covertype: string;
-    title: string;
-    assuredCode: string;
-    surName: string;
-    otherNames: string;
-    address: string;
-    fullName: string;
-    state: string;
-    landphone: string;
-    mobilePhone: string;
-    email: string;
-    nationalID: string;
-    occupation: string;
-    sex: string;
-    maritalStatus: string;
-    country: string;
-    agentcode: string;
-    agentDescription: string;
-    startDate: string;
-    maturityDate: string;
-    duration: number;
-    dateofBirth: string;
-    fop: string;
-    age: number;
-    mop: string;
-    sumAssured: number;
+// Define interface for the form data coming from the frontend
+interface FormData {
+    product?: string;
+    productType?: string;
+    agentEmail?: string;
+    sumInsured?: string;
+    agentID?: string;
+    premium?: string;
+    policyType?: string;
+    startDate?: string;
+    maturityDate?: string;
+    frequency?: string;
+    surname?: string;
+    otherNames?: string;
+    customerEmail?: string;
+    phoneNo?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    postalCode?: string;
+    gender?: string;
+    maritalStatus?: string;
+    dob?: string;
+    terms?: boolean;
 }
 
 interface ApiResponse {
-    // Define your API response structure here
-    // This should match the structure of the response from your external API
-    [key: string]: unknown;
+    success: boolean;
+    message?: string;
+    data?: unknown;
+    error?: string;
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -85,7 +94,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         // If token doesn't exist, get a new one
         if (!token) {
-            const authResponse = await fetch(`http://microlifetestapi.newgibsonline.com/api/v1/Auth`, {
+            const authResponse = await fetch(`https://microlifeapi.gibsonline.com/api/v1/Auth`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -96,101 +105,174 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 }),
             });
 
+            // Safely parse the auth response
             if (!authResponse.ok) {
+                let errorMessage = "Authentication failed";
+                try {
+                    const contentType = authResponse.headers.get("content-type");
+                    if (contentType && contentType.includes("application/json")) {
+                        const errorText = await authResponse.text();
+                        if (errorText) {
+                            const errorData = JSON.parse(errorText);
+                            errorMessage = errorData.message || errorMessage;
+                        }
+                    }
+                } catch (parseError) {
+                    console.error("Error parsing auth error response:", parseError);
+                }
+
                 return NextResponse.json(
-                    { error: "Authentication failed" },
+                    { success: false, error: errorMessage },
                     { status: 401 }
                 );
             }
 
-            const authData = await authResponse.json();
+            try {
+                const authText = await authResponse.text();
+                if (!authText.trim()) {
+                    throw new Error("Empty authentication response");
+                }
 
-            // Set token in cookies
-            (await cookies()).set({
-                name: 'goxi-token',
-                value: authData.accessToken,
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                maxAge: authData.expiresIn,
-                path: '/',
-            });
+                const authData = JSON.parse(authText);
 
-            // Use the new token
-            accessToken = authData.accessToken;
+                // Set token in cookies
+                (await cookies()).set({
+                    name: 'goxi-token',
+                    value: authData.accessToken,
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: authData.expiresIn,
+                    path: '/',
+                });
+
+                // Use the new token
+                accessToken = authData.accessToken;
+            } catch (parseError) {
+                console.error("Error parsing auth response:", parseError);
+                return NextResponse.json(
+                    { success: false, error: "Failed to process authentication response" },
+                    { status: 500 }
+                );
+            }
         } else {
             // Use existing token
             accessToken = token.value;
         }
 
-        // Parse the incoming request body
-        const requestData: RequestData = await request.json();
+        // Parse the incoming request body from the form
+        const formData: FormData = await request.json();
+        console.log("Received form data:", formData);
 
-        // Format the data according to the API requirements
-        const formattedData: FormattedData = {
-            proposalNo: requestData.proposalNo || "",
-            brCode: requestData.brCode || "",
-            tDate: requestData.tDate || new Date().toISOString(),
-            propDate: requestData.propDate || new Date().toISOString(),
-            assDate: requestData.assDate || new Date().toISOString(),
-            coverCode: mapProductToCoverCode(requestData.product),
-            covertype: requestData.productType || "",
-            title: requestData.title || "",
-            assuredCode: requestData.assuredCode || "",
-            surName: requestData.surname || "",
-            otherNames: requestData.otherNames || "",
-            address: requestData.address || "",
-            fullName: `${requestData.surname || ""} ${requestData.otherNames || ""}`.trim(),
-            state: requestData.state || "",
-            landphone: requestData.landphone || "",
-            mobilePhone: requestData.phoneNo || "",
-            email: requestData.customerEmail || "",
-            nationalID: requestData.nationalID || "",
-            occupation: requestData.occupation || "",
-            sex: requestData.gender || "",
-            maritalStatus: requestData.maritalStatus || "",
-            country: requestData.country || "Nigeria",
-            agentcode: requestData.agentCode || "",
-            agentDescription: requestData.agentDescription || "",
-            startDate: requestData.startDate || new Date().toISOString(),
-            maturityDate: requestData.maturityDate || new Date().toISOString(),
-            duration: calculateDuration(requestData.startDate, requestData.maturityDate),
-            dateofBirth: requestData.dob || new Date().toISOString(),
-            fop: mapFrequencyToFOP(requestData.frequency),
-            age: calculateAge(requestData.dob),
-            mop: requestData.mop || "",
-            sumAssured: parseFloat(requestData.sumInsured || "0")
-        };
-
-        // Environment variables would be better for sensitive information in production
-        const API_URL = "http://microlifetestapi.newgibsonline.com/api/v1/IndividualLife";
-
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: JSON.stringify(formattedData)
-        });
-
-        const data: ApiResponse = await response.json();
-
-        console.log('cutie', data);
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => null);
-            return NextResponse.json({
-                success: false,
-                message: 'Failed to create policy',
-                error: errorData || response.statusText
-            }, { status: response.status });
+        // Split otherNames into firstName and otherName if needed
+        let firstName = "";
+        let otherName = "";
+        if (formData.otherNames) {
+            const nameParts = formData.otherNames.trim().split(' ');
+            firstName = nameParts[0] || "";
+            otherName = nameParts.slice(1).join(' ');
         }
 
-        return NextResponse.json({
-            success: true,
-            message: 'Policy created successfully',
-            data
+        // Format the data according to the API requirements
+        const policyRequestData: PolicyRequestData = {
+            policyNo: "",  // This might be auto-generated by the API
+            coPolicyNo: "",
+            insured: {
+                title: "", // You may need to add this field to your form
+                lastName: formData.surname || "",
+                firstName: firstName,
+                otherName: otherName,
+                gender: mapGender(formData.gender), // Convert to expected format (MALE/FEMALE)
+                email: formData.customerEmail || "",
+                address: formData.address || "",
+                phoneLine1: formData.phoneNo || "",
+                phoneLine2: "",
+                isOrg: false, // Default to individual unless specified
+                cityLGA: formData.city || "",
+                password: "kenny",
+                stateID: formData.state || "",
+                nationality: "Nigeria", // Default value
+                dateOfBirth: formData.dob || new Date().toISOString(),
+                kycType: "NOT_AVAILABLE",
+                kycNumber: "",
+            },
+            branchID: "",
+            agentID: formData.agentID,
+            productID: formData.product || "",
+            bizSource: formData.policyType || "",
+            startDate: formData.startDate || new Date().toISOString(),
+            endDate: formData.maturityDate || new Date().toISOString(),
+            sumInsured: parseFloat(formData.sumInsured || "0"),
+            grossPremium: parseFloat(formData.premium || "0")
+        };
+
+        console.log("Sending policy data to API:", policyRequestData);
+
+        // Make request to create policy
+        const API_URL = "https://microlifeapi.gibsonline.com/api/v1/Policies/create";
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${accessToken}`
+            },
+            body: JSON.stringify(policyRequestData),
         });
+
+        // Improved response handling with proper content-type checking
+        let data: ApiResponse;
+
+        try {
+            // Check if there's a content-type header and if it contains application/json
+            const contentType = response.headers.get('content-type');
+
+            if (contentType && contentType.includes('application/json')) {
+                const responseText = await response.text();
+
+                // Ensure we have content before parsing
+                if (responseText && responseText.trim()) {
+                    data = JSON.parse(responseText);
+                } else {
+                    // Handle empty response case
+                    data = {
+                        success: response.ok,
+                        message: response.ok ? 'Policy created successfully (empty response)' : 'Empty response received'
+                    };
+                }
+            } else {
+                // Handle non-JSON response
+                const responseText = await response.text();
+                console.log("Non-JSON response:", responseText);
+
+                data = {
+                    success: response.ok,
+                    message: response.ok ? 'Policy created successfully (non-JSON response)' : 'Non-JSON response received',
+                    data: responseText
+                };
+            }
+
+            console.log('API Response:', data);
+
+            if (!response.ok) {
+                return NextResponse.json({
+                    success: false,
+                    message: 'Failed to create policy',
+                    error: data.error || data.message || response.statusText
+                }, { status: response.status });
+            }
+
+            return NextResponse.json({
+                success: true,
+                message: 'Policy created successfully',
+                data
+            });
+        } catch (error) {
+            console.error("Error parsing response:", error);
+            return NextResponse.json({
+                success: false,
+                message: 'Error parsing API response',
+                error: error instanceof Error ? error.message : 'Unknown error'
+            }, { status: 500 });
+        }
     } catch (error) {
         console.error("Error creating policy:", error);
         return NextResponse.json({
@@ -199,6 +281,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             error: error instanceof Error ? error.message : 'Unknown error'
         }, { status: 500 });
     }
+}
+
+// Helper function to map gender values
+function mapGender(gender?: string): string {
+    if (!gender) return "MALE";
+
+    const genderMap: Record<string, string> = {
+        'male': 'MALE',
+        'female': 'FEMALE',
+        'other': 'OTHER'
+    };
+
+    return genderMap[gender.toLowerCase()] || 'MALE';
 }
 
 // Helper functions

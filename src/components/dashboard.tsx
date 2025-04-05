@@ -1,6 +1,6 @@
 // src/components/Dashboard.tsx
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Briefcase,
@@ -8,19 +8,29 @@ import {
     Flame,
     ShoppingCart
 } from 'lucide-react';
-import {AgentData} from "@/utils/agentCookies";
-import {useRouter} from "next/navigation";
+import { AgentData } from "@/utils/agentCookies";
+import { useRouter } from "next/navigation";
+
+interface DashboardStats {
+    policies: number;
+    insured: number;
+    claims: number;
+    sales: number;
+    isLoading: boolean;
+}
 
 const StatCard = ({
   title,
   value,
   icon,
-  color
+  color,
+  isLoading
 }: {
     title: string;
     value: number;
     icon: React.ReactNode;
     color: string;
+    isLoading: boolean;
 }) => (
     <Card className="shadow-md hover:shadow-lg transition-shadow">
         <CardContent className="p-0 flex overflow-hidden">
@@ -28,7 +38,11 @@ const StatCard = ({
                 {icon}
             </div>
             <div className="p-6 flex flex-col justify-center">
-                <p className="text-3xl font-bold">{value}</p>
+                {isLoading ? (
+                    <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+                ) : (
+                    <p className="text-3xl font-bold">{value}</p>
+                )}
                 <p className="text-sm text-gray-500 mt-1">{title}</p>
             </div>
         </CardContent>
@@ -37,28 +51,61 @@ const StatCard = ({
 
 const Dashboard = ({ agent }: { agent: AgentData }) => {
     const router = useRouter();
-    const stats = [
+    const [stats, setStats] = useState<DashboardStats>({
+        policies: 0,
+        insured: 0,
+        claims: 0,
+        sales: 0,
+        isLoading: true
+    });
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                const response = await fetch('/api/dashboard');
+                if (!response.ok) {
+                    throw new Error("Failed to fetch dashboard data");
+                }
+                const data = await response.json();
+
+                setStats({
+                    policies: data.policies || 0,
+                    insured: data.insured || 0,
+                    claims: data.claims || 0,
+                    sales: data.sales || 0,
+                    isLoading: false
+                });
+            } catch (error) {
+                console.error("Error fetching dashboard data:", error);
+                setStats(prev => ({ ...prev, isLoading: false }));
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
+
+    const statCards = [
         {
             title: 'Policies',
-            value: 0,
+            value: stats.policies,
             icon: <Briefcase size={36} className="text-white" />,
             color: 'bg-green-600'
         },
         {
             title: 'Insured',
-            value: 0,
+            value: stats.insured,
             icon: <Users size={36} className="text-white" />,
             color: 'bg-custom-red'
         },
         {
             title: 'Claims',
-            value: 0,
+            value: stats.claims,
             icon: <Flame size={36} className="text-white" />,
             color: 'bg-custom-yellow'
         },
         {
             title: 'Sales',
-            value: 0,
+            value: stats.sales,
             icon: <ShoppingCart size={36} className="text-white" />,
             color: 'bg-blue-500'
         }
@@ -66,17 +113,18 @@ const Dashboard = ({ agent }: { agent: AgentData }) => {
 
     return (
         <div className="p-6 space-y-8">
-            <h1 className="text-2xl font-bold">Dashboard</h1>
+            <h1 className="text-2xl text-black font-bold">Dashboard</h1>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {stats.map((stat, index) => (
+                {statCards.map((stat, index) => (
                     <StatCard
                         key={index}
                         title={stat.title}
                         value={stat.value}
                         icon={stat.icon}
                         color={stat.color}
+                        isLoading={stats.isLoading}
                     />
                 ))}
             </div>
