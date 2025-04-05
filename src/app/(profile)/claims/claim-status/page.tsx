@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Calendar } from 'lucide-react';
+import { Search, Calendar, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 
 // Define types for our data structures
@@ -37,6 +37,7 @@ const ClaimStatusChecker: React.FC = () => {
     const [claims, setClaims] = useState<Claim[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [noResults, setNoResults] = useState<boolean>(false);
 
     // Handle input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
@@ -52,9 +53,9 @@ const ClaimStatusChecker: React.FC = () => {
         if (!dateString) return 'N/A';
         try {
             const date = new Date(dateString);
-            return format(date, 'dd/MM/yyyy');
+            return isNaN(date.getTime()) ? 'Invalid Date' : format(date, 'dd/MM/yyyy');
         } catch (error) {
-            console.log(error);
+            console.error('Date formatting error:', error);
             return 'Invalid Date';
         }
     };
@@ -63,26 +64,47 @@ const ClaimStatusChecker: React.FC = () => {
     const searchClaims = async (): Promise<void> => {
         setIsLoading(true);
         setError(null);
+        setNoResults(false);
 
         try {
-            // Build query string from search parameters (filtering out empty values)
-            const queryParams = Object.entries(searchParams)
-                .filter(([_, value]) => {
-                    console.log(_);
-                    return value !== ''
-                })
-                .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-                .join('&');
+            // Validate date range if both dates are provided
+            if (searchParams.dateFrom && searchParams.dateTo) {
+                const fromDate = new Date(searchParams.dateFrom);
+                const toDate = new Date(searchParams.dateTo);
 
-            const response = await fetch(`/api/claims?${queryParams}`);
+                if (fromDate > toDate) {
+                    throw new Error('From date cannot be after To date');
+                }
+            }
 
-            if (!response.ok) {
-                const errorData: { error: string } = await response.json();
-                throw new Error(errorData.error || 'Failed to fetch claims');
+            // Build query string from search parameters
+            const queryParams = new URLSearchParams();
+
+            if (searchParams.searchText) queryParams.append('searchText', searchParams.searchText);
+            if (searchParams.dateFrom) queryParams.append('dateFrom', searchParams.dateFrom);
+            if (searchParams.dateTo) queryParams.append('dateTo', searchParams.dateTo);
+            queryParams.append('pageNo', searchParams.pageNo.toString());
+            queryParams.append('pageSize', searchParams.pageSize.toString());
+
+            // Make API request to our route handler
+            const response = await fetch(`/api/claims?${queryParams.toString()}`);
+
+            // Handle different response statuses
+            if (response.status === 401) {
+                throw new Error('Authentication failed. Please try again.');
+            } else if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Request failed with status: ${response.status}`);
             }
 
             const data: Claim[] = await response.json();
+
             setClaims(data);
+
+            // Check if no results were returned
+            if (data.length === 0) {
+                setNoResults(true);
+            }
         } catch (err) {
             const error = err as Error;
             setError(error.message || 'An error occurred while fetching claims');
@@ -103,6 +125,7 @@ const ClaimStatusChecker: React.FC = () => {
         });
         setClaims([]);
         setError(null);
+        setNoResults(false);
     };
 
     // Handle pagination
@@ -122,54 +145,73 @@ const ClaimStatusChecker: React.FC = () => {
         <div className="bg-slate-50 p-6 flex flex-col items-center">
             <Card className="w-full max-w-4xl shadow-lg border-t-4 border-t-custom-yellow mb-6">
                 <CardHeader className="bg-gradient-custom text-white rounded-t-lg">
-                    <CardTitle className="text-2xl font-bold">Claim Status</CardTitle>
+                    <CardTitle className="text-2xl font-bold">Individual Life Insurance Claims</CardTitle>
                     <p className="text-gray-100">Search for claims using the filters below</p>
                 </CardHeader>
 
                 <CardContent className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         {/* Search Text Field */}
-                        <div className="relative">
-                            <Input
-                                placeholder="Search by policy number or description"
-                                name="searchText"
-                                value={searchParams.searchText}
-                                onChange={handleInputChange}
-                                className="pl-10 border-slate-300 focus:border-custom-green focus:ring-custom-green"
-                            />
-                            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <div className="space-y-2">
+                            <label htmlFor="searchText" className="text-sm font-medium text-gray-700">
+                                Policy Number or Description
+                            </label>
+                            <div className="relative">
+                                <Input
+                                    id="searchText"
+                                    placeholder="Enter policy number or description"
+                                    name="searchText"
+                                    value={searchParams.searchText}
+                                    onChange={handleInputChange}
+                                    className="pl-10 border-slate-300 focus:border-custom-green focus:ring-custom-green"
+                                />
+                                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            </div>
                         </div>
 
                         {/* Date From Field */}
-                        <div className="relative">
-                            <Input
-                                type="date"
-                                name="dateFrom"
-                                value={searchParams.dateFrom}
-                                onChange={handleInputChange}
-                                className="pl-10 border-slate-300 focus:border-custom-green focus:ring-custom-green"
-                            />
-                            <Calendar className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                            <span className="absolute left-10 top-3 text-xs text-gray-500">From</span>
+                        <div className="space-y-2">
+                            <label htmlFor="dateFrom" className="text-sm font-medium text-gray-700">
+                                Loss Date From
+                            </label>
+                            <div className="relative">
+                                <Input
+                                    id="dateFrom"
+                                    type="date"
+                                    name="dateFrom"
+                                    value={searchParams.dateFrom}
+                                    onChange={handleInputChange}
+                                    className="pl-10 border-slate-300 focus:border-custom-green focus:ring-custom-green"
+                                />
+                                <Calendar className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            </div>
                         </div>
 
                         {/* Date To Field */}
-                        <div className="relative">
-                            <Input
-                                type="date"
-                                name="dateTo"
-                                value={searchParams.dateTo}
-                                onChange={handleInputChange}
-                                className="pl-10 border-slate-300 focus:border-custom-green focus:ring-custom-green"
-                            />
-                            <Calendar className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                            <span className="absolute left-10 top-3 text-xs text-gray-500">To</span>
+                        <div className="space-y-2">
+                            <label htmlFor="dateTo" className="text-sm font-medium text-gray-700">
+                                Loss Date To
+                            </label>
+                            <div className="relative">
+                                <Input
+                                    id="dateTo"
+                                    type="date"
+                                    name="dateTo"
+                                    value={searchParams.dateTo}
+                                    onChange={handleInputChange}
+                                    className="pl-10 border-slate-300 focus:border-custom-green focus:ring-custom-green"
+                                />
+                                <Calendar className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            </div>
                         </div>
 
                         {/* Page Size Selection */}
-                        <div className="relative">
-                            <label className="text-sm text-gray-500 mb-1 block">Results per page</label>
+                        <div className="space-y-2">
+                            <label htmlFor="pageSize" className="text-sm font-medium text-gray-700">
+                                Results per page
+                            </label>
                             <select
+                                id="pageSize"
                                 name="pageSize"
                                 value={searchParams.pageSize}
                                 onChange={handleInputChange}
@@ -204,12 +246,25 @@ const ClaimStatusChecker: React.FC = () => {
 
                     {/* Error display */}
                     {error && (
-                        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-md text-red-600">
-                            {error}
+                        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-md text-red-600 flex items-start gap-3">
+                            <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                            <div>
+                                <p className="font-medium">Error</p>
+                                <p>{error}</p>
+                            </div>
                         </div>
                     )}
                 </CardContent>
             </Card>
+
+            {/* No results message */}
+            {noResults && !error && (
+                <Card className="w-full max-w-4xl shadow-lg mb-6">
+                    <CardContent className="p-6 text-center">
+                        <p className="text-slate-600">No claims match your search criteria. Please try different filters.</p>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Claims Table */}
             {claims.length > 0 && (
@@ -233,8 +288,8 @@ const ClaimStatusChecker: React.FC = () => {
                                 </thead>
                                 <tbody className="divide-y">
                                 {claims.map((claim, index) => (
-                                    <tr key={index} className="hover:bg-slate-50">
-                                        <td className="px-6 py-4 font-medium">{claim.policyNo}</td>
+                                    <tr key={`${claim.policyNo}-${index}`} className="hover:bg-slate-50">
+                                        <td className="px-6 py-4 font-medium">{claim.policyNo || 'N/A'}</td>
                                         <td className="px-6 py-4">{formatDate(claim.lossDate)}</td>
                                         <td className="px-6 py-4">{formatDate(claim.lossNotifyDate)}</td>
                                         <td className="px-6 py-4">{claim.lossType || 'N/A'}</td>

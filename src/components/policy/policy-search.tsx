@@ -18,16 +18,33 @@ interface PolicyDetails {
     nextRenewal: string;
     sumInsured: number;
     premium: number;
+    status?: string;
 }
 
 const PolicySearch: React.FC = () => {
-    const [policyNumber, setPolicyNumber] = useState('');
+    const [searchParams, setSearchParams] = useState({
+        policyNumber: '',
+        holderName: '',
+        status: ''
+    });
+    const [activeSearchField, setActiveSearchField] = useState<'policyNumber' | 'holderName'>('policyNumber');
     const [isSearching, setIsSearching] = useState(false);
     const [policyDetails, setPolicyDetails] = useState<PolicyDetails | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPolicyNumber(e.target.value);
+        const { name, value } = e.target;
+        setSearchParams(prev => ({ ...prev, [name]: value }));
+
+        // Update active search field
+        if (name === 'policyNumber' && value) {
+            setActiveSearchField('policyNumber');
+            setSearchParams(prev => ({ ...prev, holderName: '' }));
+        } else if (name === 'holderName' && value) {
+            setActiveSearchField('holderName');
+            setSearchParams(prev => ({ ...prev, policyNumber: '' }));
+        }
+
         // Clear previous results when input changes
         setPolicyDetails(null);
         setError(null);
@@ -35,8 +52,11 @@ const PolicySearch: React.FC = () => {
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!policyNumber.trim()) {
-            setError('Please enter a policy number');
+
+        // Validate that at least one search parameter is provided
+        const searchField = activeSearchField === 'policyNumber' ? 'policyNumber' : 'holderName';
+        if (!searchParams[searchField].trim()) {
+            setError(`Please enter a ${searchField === 'policyNumber' ? 'policy number' : 'holder name'}`);
             return;
         }
 
@@ -44,15 +64,35 @@ const PolicySearch: React.FC = () => {
         setError(null);
 
         try {
+            // Build query parameters
+            const queryParams = new URLSearchParams();
+            if (searchParams.policyNumber.trim()) {
+                queryParams.append('policyNumber', searchParams.policyNumber.trim());
+            }
+            if (searchParams.holderName.trim()) {
+                queryParams.append('holderName', searchParams.holderName.trim());
+            }
+            if (searchParams.status.trim()) {
+                queryParams.append('status', searchParams.status.trim());
+            }
+
             // API integration for policy search
-            const response = await fetch(`/api/policies/search?policyNumber=${encodeURIComponent(policyNumber)}`);
+            const response = await fetch(`/api/policies/search?${queryParams.toString()}`);
             const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.message || 'Policy not found');
             }
 
-            setPolicyDetails(data);
+            // Handle potential array response when searching by holder name
+            if (Array.isArray(data)) {
+                if (data.length === 0) {
+                    throw new Error('No policies found matching your search criteria');
+                }
+                setPolicyDetails(data[0]); // Display the first policy
+            } else {
+                setPolicyDetails(data);
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred while searching');
             setPolicyDetails(null);
@@ -77,24 +117,41 @@ const PolicySearch: React.FC = () => {
                     <p className="text-gray-100">View your policy details</p>
                 </CardHeader>
                 <CardContent className="p-6">
-                    <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 mb-6">
-                        <div className="flex-1 relative">
-                            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                            <Input
-                                type="text"
-                                placeholder="Enter your policy number"
-                                value={policyNumber}
-                                onChange={handleInputChange}
-                                className="pl-10 border-gray-300 focus:ring-custom-yellow focus:border-custom-yellow"
-                            />
+                    <form onSubmit={handleSearch} className="mb-6">
+                        <div className="flex gap-3 mb-3">
+                            <div className="flex-1 relative">
+                                <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                                <Input
+                                    type="text"
+                                    name="policyNumber"
+                                    placeholder="Search by policy number"
+                                    value={searchParams.policyNumber}
+                                    onChange={handleInputChange}
+                                    className="pl-10 border-gray-300 focus:ring-custom-yellow focus:border-custom-yellow"
+                                />
+                            </div>
+                            <p className="text-gray-500 self-center">or</p>
+                            <div className="flex-1 relative">
+                                <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                                <Input
+                                    type="text"
+                                    name="holderName"
+                                    placeholder="Search by policyholder name"
+                                    value={searchParams.holderName}
+                                    onChange={handleInputChange}
+                                    className="pl-10 border-gray-300 focus:ring-custom-yellow focus:border-custom-yellow"
+                                />
+                            </div>
                         </div>
-                        <Button
-                            type="submit"
-                            disabled={isSearching}
-                            className="bg-custom-yellow hover:bg-yellow-600 text-white font-medium py-2 px-6 rounded-md transition-all"
-                        >
-                            {isSearching ? "Searching..." : "Search"}
-                        </Button>
+                        <div className="flex justify-end">
+                            <Button
+                                type="submit"
+                                disabled={isSearching}
+                                className="bg-custom-yellow hover:bg-yellow-600 text-white font-medium py-2 px-6 rounded-md transition-all"
+                            >
+                                {isSearching ? "Searching..." : "Search"}
+                            </Button>
+                        </div>
                     </form>
 
                     {error && (
@@ -111,6 +168,11 @@ const PolicySearch: React.FC = () => {
                                     Policy Details
                                 </h3>
                                 <p className="text-green-100 text-sm">Policy Number: {policyDetails.policyNo}</p>
+                                {policyDetails.status && (
+                                    <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full bg-green-700 text-white">
+                                        {policyDetails.status}
+                                    </span>
+                                )}
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">

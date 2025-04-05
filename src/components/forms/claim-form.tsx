@@ -127,7 +127,7 @@ const ClaimForm: React.FC = () => {
 
             data.append("policyNo", formData.policyNo);
             data.append("lossNotifyDate", formData.lossNotifyDate?.toISOString());
-            data.append("lossData", formData.lossDate?.toISOString());
+            data.append("lossDate", formData.lossDate?.toISOString());
             data.append("lossType", formData.lossType);
             data.append("lossDescription", formData.lossDescription);
 
@@ -152,10 +152,8 @@ const ClaimForm: React.FC = () => {
             const result = await response.json();
 
             if (!response.ok) {
-                throw new Error(result.message || 'Failed to submit claim');
+                throw new Error(result?.error || 'Failed to submit claim');
             }
-
-            console.log(result);
 
             setSuccess('Your claim has been submitted successfully!');
             // Reset form after successful submission
@@ -187,19 +185,9 @@ const ClaimForm: React.FC = () => {
                     <p className="text-gray-100">Complete the form below to report your insurance claim</p>
                 </CardHeader>
                 <CardContent className="p-6">
-                    {error && (
-                        <div className="mb-4 p-3 bg-red-100 border border-custom-red text-custom-red rounded-md">
-                            {error}
-                        </div>
-                    )}
-                    {success && (
-                        <div className="mb-4 p-3 bg-green-100 border border-custom-green text-custom-green rounded-md">
-                            {success}
-                        </div>
-                    )}
                     <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <Label htmlFor="policyNo" className="text-foreground font-medium">Policy Number</Label>
+                            <Label htmlFor="policyNo" className="text-black font-medium">Policy Number</Label>
                             <Input
                                 id="policyNo"
                                 name="policyNo"
@@ -212,7 +200,7 @@ const ClaimForm: React.FC = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="surname" className="text-foreground font-medium">Surname</Label>
+                            <Label htmlFor="surname" className="text-black font-medium">Surname</Label>
                             <Input
                                 id="surname"
                                 name="surname"
@@ -225,7 +213,7 @@ const ClaimForm: React.FC = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="othernames" className="text-foreground font-medium">Other Names</Label>
+                            <Label htmlFor="othernames" className="text-black font-medium">Other Names</Label>
                             <Input
                                 id="othernames"
                                 name="othernames"
@@ -238,7 +226,7 @@ const ClaimForm: React.FC = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="certificateNo" className="text-foreground font-medium">Certificate Number</Label>
+                            <Label htmlFor="certificateNo" className="text-black font-medium">Certificate Number</Label>
                             <Input
                                 id="certificateNo"
                                 name="certificateNo"
@@ -250,7 +238,7 @@ const ClaimForm: React.FC = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="mobileNo" className="text-foreground font-medium">Mobile Number</Label>
+                            <Label htmlFor="mobileNo" className="text-black font-medium">Mobile Number</Label>
                             <Input
                                 id="mobileNo"
                                 name="mobileNo"
@@ -263,7 +251,7 @@ const ClaimForm: React.FC = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="text-foreground font-medium">Email Address</Label>
+                            <Label htmlFor="email" className="text-black font-medium">Email Address</Label>
                             <Input
                                 id="email"
                                 name="email"
@@ -277,7 +265,7 @@ const ClaimForm: React.FC = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="lossType" className="text-foreground font-medium">Type of Loss</Label>
+                            <Label htmlFor="lossType" className="text-black font-medium">Type of Loss</Label>
                             <Select
                                 value={formData.lossType}
                                 onValueChange={handleSelectChange}
@@ -296,7 +284,7 @@ const ClaimForm: React.FC = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="lossDate" className="text-foreground font-medium">Loss Date</Label>
+                            <Label htmlFor="lossDate" className="text-black font-medium">Loss Date</Label>
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <Button
@@ -322,7 +310,7 @@ const ClaimForm: React.FC = () => {
                         </div>
 
                         <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="lossDescription" className="text-foreground font-medium">Loss Description</Label>
+                            <Label htmlFor="lossDescription" className="text-black font-medium">Loss Description</Label>
                             <Textarea
                                 id="lossDescription"
                                 name="lossDescription"
@@ -335,7 +323,7 @@ const ClaimForm: React.FC = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="supportFile" className="text-foreground font-medium">Upload Claim Support File (PDF/JPG)</Label>
+                            <Label htmlFor="supportFile" className="text-black font-medium">Upload Claim Support File (PDF/JPG)</Label>
                             <Input
                                 id="supportFile"
                                 name="supportFile"
@@ -347,6 +335,18 @@ const ClaimForm: React.FC = () => {
                             <p className="text-xs text-gray-500">Max file size: 5MB</p>
                         </div>
 
+                        <div className="md:col-span-2">
+                            {error && (
+                                <div className="mb-1 p-3 bg-red-100 border border-custom-red text-custom-red rounded-md">
+                                    {error}
+                                </div>
+                            )}
+                            {success && (
+                                <div className="mb-1 p-3 bg-green-100 border border-custom-green text-custom-green rounded-md">
+                                    {success}
+                                </div>
+                            )}
+                        </div>
                         <div className="md:col-span-2 mt-4">
                             <Button
                                 type="submit"
