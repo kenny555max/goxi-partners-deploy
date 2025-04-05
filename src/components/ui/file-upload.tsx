@@ -104,25 +104,23 @@ const GroupMembersUpload: React.FC = () => {
             // Upload to our Next.js API route, which will forward to external API
             const response = await fetch('/api/upload-members', {
                 method: "POST",
-                //headers: {
-                //    'Content-Type': 'multipart/form-data',
-                //},
                 body: formData
             });
 
             const data = await response.json();
 
-            if (!response.ok){
-                throw Error(data?.error);
+            if (!response.ok) {
+                throw new Error(data?.error || 'Failed to upload members');
             }
 
             setSuccess('Members uploaded successfully!');
             console.log('Upload response:', data);
 
-             setPolicyNo('');
-             setEndorsementNo('');
-             setFileName('No file chosen');
-             setFileData(null);
+            // Reset form after successful upload
+            setPolicyNo('');
+            setEndorsementNo('');
+            setFileName('No file chosen');
+            setFileData(null);
 
         } catch (err) {
             console.error('Upload error:', err);

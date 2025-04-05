@@ -348,3 +348,156 @@ function mapFrequencyToFOP(frequency?: string): string {
 
     return frequency ? frequencyMap[frequency] || "" : "";
 }
+
+const API_URL = process.env.API_URL || 'https://microlifeapi.gibsonline.com';
+
+export async function GET(request: NextRequest) {
+    try {
+        // Parse query parameters
+        const searchParams = request.nextUrl.searchParams;
+        const policyType = searchParams.get('type') || 'individual'; // Default to individual if not specified
+
+        // Check if token exists in cookies
+        const token = (await cookies()).get('goxi-token');
+
+        let accessToken = null;
+
+        // If token doesn't exist, get a new one
+        if (!token) {
+            const authResponse = await fetch(`${API_URL}/api/v1/Auth`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    appID: "GOXI",
+                    password: "api@goxi_micro"
+                }),
+            });
+
+            // Safely parse the auth response
+            if (!authResponse.ok) {
+                let errorMessage = "Authentication failed";
+                try {
+                    const contentType = authResponse.headers.get("content-type");
+                    if (contentType && contentType.includes("application/json")) {
+                        const errorText = await authResponse.text();
+                        if (errorText) {
+                            const errorData = JSON.parse(errorText);
+                            errorMessage = errorData.message || errorMessage;
+                        }
+                    }
+                } catch (parseError) {
+                    console.error("Error parsing auth error response:", parseError);
+                }
+
+                return NextResponse.json(
+                    { error: errorMessage },
+                    { status: 401 }
+                );
+            }
+
+            try {
+                const authText = await authResponse.text();
+                if (!authText.trim()) {
+                    throw new Error("Empty authentication response");
+                }
+
+                const authData = JSON.parse(authText);
+
+                // Set token in cookies
+                (await cookies()).set({
+                    name: 'goxi-token',
+                    value: authData.accessToken,
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: authData.expiresIn,
+                    path: '/',
+                });
+
+                // Use the new token
+                accessToken = authData.accessToken;
+            } catch (parseError) {
+                console.error("Error parsing auth response:", parseError);
+                return NextResponse.json(
+                    { error: "Failed to process authentication response" },
+                    { status: 500 }
+                );
+            }
+        } else {
+            // Use existing token
+            accessToken = token.value;
+        }
+
+        // Determine which endpoint to use based on policyType
+        const endpoint = policyType === 'group'
+            ? '/api/v1/Policies/group'
+            : '/api/v1/Policies/policies/individual';
+
+        // Fetch policies using the token
+        const policiesResponse = await fetch(`${API_URL}${endpoint}`, {
+            headers: {
+                "Authorization": `Bearer ${accessToken}`
+            },
+            cache: "no-store"
+        });
+
+        if (!policiesResponse.ok) {
+            let errorMessage = "Failed to fetch policies";
+            try {
+                const contentType = policiesResponse.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const errorData = await policiesResponse.json();
+                    errorMessage = errorData || errorMessage;
+                }
+            } catch (parseError) {
+                console.error("Error parsing policy fetch error:", parseError);
+            }
+
+            return NextResponse.json(
+                { error: errorMessage },
+                { status: policiesResponse.status }
+            );
+        }
+
+        // Parse and transform the response to match the expected format for the UI
+        const policiesData = await policiesResponse.json();
+
+        // Transform the data to match the expected format for the PolicyTable component
+        const transformedPolicies = policiesData.map((policy: any, index: number) => ({
+            id: index.toString(), // Generate an ID if none exists
+            policyNo: policy.policyNo || 'N/A',
+            product: policy.coverType || 'N/A',
+            insured: policy.fullName || 'N/A',
+            periodOfCover: policy.startDate && policy.maturityDate
+                ? `${new Date(policy.startDate).toLocaleDateString()} - ${new Date(policy.maturityDate).toLocaleDateString()}`
+                : 'N/A',
+            fop: policy.paymentFrequency || 'Annual', // Default to Annual if not provided
+            premium: policy.basicPremium || 0,
+            sumInsured: policy.sumAssured || 0,
+            status: mapPolicyStatus(policy.status || ''),
+            transDate: policy.startDate ? new Date(policy.startDate).toLocaleDateString() : 'N/A'
+        }));
+
+        return NextResponse.json(transformedPolicies);
+    } catch (error) {
+        console.error("Server error:", error);
+        return NextResponse.json(
+            { error: "An unexpected error occurred" },
+            { status: 500 }
+        );
+    }
+}
+
+// Helper function to map API status values to expected UI status values
+function mapPolicyStatus(status: string): 'active' | 'expired' | 'pending' | 'cancelled' {
+    const statusLower = status.toLowerCase();
+
+    if (statusLower.includes('active')) return 'active';
+    if (statusLower.includes('expired') || statusLower.includes('matured')) return 'expired';
+    if (statusLower.includes('pending') || statusLower.includes('wait')) return 'pending';
+    if (statusLower.includes('cancel') || statusLower.includes('termin')) return 'cancelled';
+
+    // Default to pending if status doesn't match any known patterns
+    return 'pending';
+}

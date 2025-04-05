@@ -20,6 +20,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/components/ui/use-toast';
+import { usePolicies } from './usePolicies';
 
 // Define the Policy interface
 interface Policy {
@@ -36,8 +37,7 @@ interface Policy {
 }
 
 interface PolicyTableProps {
-    // eslint-disable-next-line
-    policies: any[];
+    policyType?: 'individual' | 'group';
 }
 
 const StatusBadge = ({ status }: { status: Policy['status'] }) => {
@@ -55,14 +55,17 @@ const StatusBadge = ({ status }: { status: Policy['status'] }) => {
     );
 };
 
-const PolicyTable = ({ policies }: PolicyTableProps) => {
+const PolicyTable = ({ policyType = 'individual' }: PolicyTableProps) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10;
     const { toast } = useToast();
     const tableRef = useRef<HTMLDivElement>(null);
 
-    const filteredPolicies = policies.filter(policy =>
+    // Use our custom hook to fetch policies
+    const { policies, loading, error, refetch } = usePolicies(policyType);
+
+    const filteredPolicies = policies.filter((policy: any) =>
         policy.policyNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
         policy.insured.toLowerCase().includes(searchTerm.toLowerCase()) ||
         policy.product.toLowerCase().includes(searchTerm.toLowerCase())
@@ -76,8 +79,7 @@ const PolicyTable = ({ policies }: PolicyTableProps) => {
     const totalPages = Math.ceil(filteredPolicies.length / pageSize);
 
     // Helper function to convert policies to CSV format
-    // eslint-disable-next-line
-    const convertToCSV = (policies: any[]) => {
+    const convertToCSV = (policies: Policy[]) => {
         const headers = ['Policy No', 'Product', 'Insured', 'Period of Cover', 'FOP', 'Premium', 'Sum Insured', 'Status', 'Trans Date'];
         const csvRows = [
             headers.join(','),
@@ -134,7 +136,7 @@ const PolicyTable = ({ policies }: PolicyTableProps) => {
 
     // Function to copy data to clipboard
     const handleCopy = () => {
-        const policyText = filteredPolicies.map(policy =>
+        const policyText = filteredPolicies.map((policy: any) =>
             `${policy.policyNo} | ${policy.product} | ${policy.insured} | ${policy.periodOfCover} | ${policy.fop} | $${policy.premium} | $${policy.sumInsured} | ${policy.status} | ${policy.transDate}`
         ).join('\n');
 
@@ -212,7 +214,7 @@ const PolicyTable = ({ policies }: PolicyTableProps) => {
                             </tr>
                         </thead>
                         <tbody>
-                            ${filteredPolicies.map(policy => `
+                            ${filteredPolicies.map((policy: any) => `
                                 <tr>
                                     <td>${policy.policyNo}</td>
                                     <td>${policy.product}</td>
@@ -314,72 +316,78 @@ const PolicyTable = ({ policies }: PolicyTableProps) => {
                 </div>
 
                 <div className="overflow-x-auto border rounded-lg" ref={tableRef}>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-12 text-center">#</TableHead>
-                                <TableHead>Policy No</TableHead>
-                                <TableHead>Product</TableHead>
-                                <TableHead>Insured</TableHead>
-                                <TableHead>Period of Cover</TableHead>
-                                <TableHead>FOP</TableHead>
-                                <TableHead>Premium</TableHead>
-                                <TableHead>Sum Insured</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Trans Date</TableHead>
-                                <TableHead className="w-12">Action</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {paginatedPolicies.length > 0 ? (
-                                paginatedPolicies.map((policy, index) => (
-                                    <TableRow key={policy.id}>
-                                        <TableCell className="text-center font-medium">{(currentPage - 1) * pageSize + index + 1}</TableCell>
-                                        <TableCell>{policy.policyNo}</TableCell>
-                                        <TableCell>{policy.product}</TableCell>
-                                        <TableCell>{policy.insured}</TableCell>
-                                        <TableCell>{policy.periodOfCover}</TableCell>
-                                        <TableCell>{policy.fop}</TableCell>
-                                        <TableCell>{new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(policy.premium)}</TableCell>
-                                        <TableCell>{new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(policy.sumInsured)}</TableCell>
-                                        <TableCell><StatusBadge status={policy.status} /></TableCell>
-                                        <TableCell>{policy.transDate}</TableCell>
-                                        <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem>
-                                                        <Eye className="h-4 w-4 mr-2" />
-                                                        View
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem>
-                                                        <Edit className="h-4 w-4 mr-2" />
-                                                        Edit
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-red-600">
-                                                        <Trash2 className="h-4 w-4 mr-2" />
-                                                        Delete
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
+                    {loading ? (
+                        <div className="text-center py-6 text-gray-500">Loading policies...</div>
+                    ) : error ? (
+                        <div className="text-center py-6 text-red-500">{error}</div>
+                    ) : (
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="w-12 text-center">#</TableHead>
+                                    <TableHead>Policy No</TableHead>
+                                    <TableHead>Product</TableHead>
+                                    <TableHead>Insured</TableHead>
+                                    <TableHead>Period of Cover</TableHead>
+                                    <TableHead>FOP</TableHead>
+                                    <TableHead>Premium</TableHead>
+                                    <TableHead>Sum Insured</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Trans Date</TableHead>
+                                    <TableHead className="w-12">Action</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {paginatedPolicies.length > 0 ? (
+                                    paginatedPolicies.map((policy: any, index: number) => (
+                                        <TableRow key={policy.id}>
+                                            <TableCell className="text-center font-medium">{(currentPage - 1) * pageSize + index + 1}</TableCell>
+                                            <TableCell>{policy.policyNo}</TableCell>
+                                            <TableCell>{policy.product}</TableCell>
+                                            <TableCell>{policy.insured}</TableCell>
+                                            <TableCell>{policy.periodOfCover}</TableCell>
+                                            <TableCell>{policy.fop}</TableCell>
+                                            <TableCell>{new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(policy.premium)}</TableCell>
+                                            <TableCell>{new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(policy.sumInsured)}</TableCell>
+                                            <TableCell><StatusBadge status={policy.status} /></TableCell>
+                                            <TableCell>{policy.transDate}</TableCell>
+                                            <TableCell>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem>
+                                                            <Eye className="h-4 w-4 mr-2" />
+                                                            View
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem>
+                                                            <Edit className="h-4 w-4 mr-2" />
+                                                            Edit
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-red-600">
+                                                            <Trash2 className="h-4 w-4 mr-2" />
+                                                            Delete
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={11} className="text-center py-6 text-gray-500">
+                                            No data available in table
                                         </TableCell>
                                     </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell colSpan={11} className="text-center py-6 text-gray-500">
-                                        No data available in table
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                                )}
+                            </TableBody>
+                        </Table>
+                    )}
                 </div>
 
                 {filteredPolicies.length > 0 && (

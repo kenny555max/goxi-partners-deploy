@@ -1,6 +1,7 @@
 import PolicyTable from "@/components/policy-table";
 
 export default function ExsitingPolicyPage(){
+    /*
     const samplePolicies = [
         {
             id: '1',
@@ -123,10 +124,11 @@ export default function ExsitingPolicyPage(){
             transDate: '02/15/2025'
         }
     ];
+     */
 
     return(
         <div>
-            <PolicyTable policies={samplePolicies} />
+            <PolicyTable policyType={"individual"} />
         </div>
     );
 }

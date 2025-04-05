@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {cookies} from "next/headers";
+import { cookies } from "next/headers";
 
-const EXTERNAL_API_URL = 'http://microlifetestapi.newgibsonline.com/api/v1/Documents/Upload/Policy';
-const API_URL = "http://microlifetestapi.newgibsonline.com";
+// Updated API URL
+const EXTERNAL_API_URL = 'https://microlifeapi.gibsonline.com/api/v1/Documents/Upload/Policy';
+const API_URL = "https://microlifeapi.gibsonline.com";
 
 export async function POST(req: NextRequest) {
     try {
@@ -96,21 +97,29 @@ export async function POST(req: NextRequest) {
             file: membersArray
         };
 
-        // Make request to external API
+        // Make request to external API with multipart form data
+        const apiFormData = new FormData();
+        apiFormData.append('policyNo', policyNo);
+        if (endorsementNo) {
+            apiFormData.append('endorsementNo', endorsementNo);
+        }
+        apiFormData.append('file', JSON.stringify(membersArray));
+
         const response = await fetch(EXTERNAL_API_URL, {
             method: "POST",
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`,
+                // No Content-Type header for multipart/form-data as the browser will set it with boundary
             },
-            body: JSON.stringify(payload)
+            body: apiFormData
         });
 
-        const data = await response.json();
-
-        if (!response) {
-            throw Error("error uploading document");
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData || `Error uploading document: ${response.status}`);
         }
+
+        const data = await response.json();
 
         // Return the response from the external API
         return NextResponse.json(
@@ -124,9 +133,9 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error('Error in upload API route:', error);
-        // Generic error handler
+        // Return specific error message if available
         return NextResponse.json(
-            { error: 'An unexpected error occurred' },
+            { error: error instanceof Error ? error.message : 'An unexpected error occurred' },
             { status: 500 }
         );
     }
