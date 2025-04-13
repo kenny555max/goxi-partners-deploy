@@ -45,9 +45,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
 }
 
-// Only run middleware on specific paths
 export const config = {
-    matcher: [
-        '/((?!_next/static|_next/image|favicon.ico|assets|api/agents).*)',
-    ],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|assets|api).*)',
+  ],
 };
+
