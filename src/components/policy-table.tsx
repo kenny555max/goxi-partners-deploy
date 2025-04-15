@@ -4,14 +4,6 @@ import { Search, Download, Copy, FileText, MoreHorizontal, Eye, Edit, Trash2, Pr
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
     Table,
     TableBody,
     TableCell,
@@ -65,7 +57,7 @@ const PolicyTable = ({ policyType = 'individual' }: PolicyTableProps) => {
     // Use our custom hook to fetch policies
     const { policies, loading, error, refetch } = usePolicies(policyType);
 
-    const filteredPolicies = policies.filter((policy: any) =>
+    const filteredPolicies = policies?.filter((policy: any) =>
         policy.policyNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
         policy.insured.toLowerCase().includes(searchTerm.toLowerCase()) ||
         policy.product.toLowerCase().includes(searchTerm.toLowerCase())
@@ -334,7 +326,7 @@ const PolicyTable = ({ policyType = 'individual' }: PolicyTableProps) => {
                                     <TableHead>Sum Insured</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead>Trans Date</TableHead>
-                                    <TableHead className="w-12">Action</TableHead>
+                                    {/*<TableHead className="w-12">Action</TableHead>*/}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -351,31 +343,31 @@ const PolicyTable = ({ policyType = 'individual' }: PolicyTableProps) => {
                                             <TableCell>{new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(policy.sumInsured)}</TableCell>
                                             <TableCell><StatusBadge status={policy.status} /></TableCell>
                                             <TableCell>{policy.transDate}</TableCell>
-                                            <TableCell>
+                                            {/*<TableCell>
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
                                                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                                            <MoreHorizontal className="h-4 w-4" />
+                                                            <MoreHorizontal className="h-4 w-4"/>
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuSeparator/>
                                                         <DropdownMenuItem>
-                                                            <Eye className="h-4 w-4 mr-2" />
+                                                            <Eye className="h-4 w-4 mr-2"/>
                                                             View
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem>
-                                                            <Edit className="h-4 w-4 mr-2" />
+                                                            <Edit className="h-4 w-4 mr-2"/>
                                                             Edit
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem className="text-red-600">
-                                                            <Trash2 className="h-4 w-4 mr-2" />
+                                                            <Trash2 className="h-4 w-4 mr-2"/>
                                                             Delete
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
-                                            </TableCell>
+                                            </TableCell>*/}
                                         </TableRow>
                                     ))
                                 ) : (

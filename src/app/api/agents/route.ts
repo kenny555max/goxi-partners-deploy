@@ -132,8 +132,7 @@ export async function POST(request: NextRequest) {
         } catch (parseError) {
             console.error("Error parsing response:", parseError);
             return NextResponse.json(
-                // @ts-ignore
-                { error: "Failed to process response", details: parseError?.message },
+                { error: "Failed to process response", details: "Failed to process response" },
                 { status: 500 }
             );
         }

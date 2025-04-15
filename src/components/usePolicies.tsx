@@ -46,7 +46,7 @@ export function usePolicies(type: 'individual' | 'group' = 'individual'): UsePol
             }
 
             const data = await response.json();
-            setPolicies(data);
+            setPolicies(data?.data);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred');
         } finally {

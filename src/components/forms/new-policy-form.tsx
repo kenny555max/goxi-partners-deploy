@@ -104,6 +104,7 @@ export default function NewPolicyForm({ agentValue }: { agentValue?: any }) {
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [isLoadingProducts, setIsLoadingProducts] = useState<boolean>(true);
     const [products, setProducts] = useState<SelectOption[]>([]);
+    const url = window.location.href;
 
     // Initialize form data with proper types
     const [formData, setFormData] = useState<PolicyFormData>({
@@ -317,6 +318,7 @@ export default function NewPolicyForm({ agentValue }: { agentValue?: any }) {
                 body: JSON.stringify({
                     ...formData,
                     agentID: agentValue?.agentID,
+                    isOrg: url.includes("group-policy"),
                     // Convert dates to ISO strings
                     startDate: formData.startDate ? formData.startDate.toISOString() : null,
                     maturityDate: formData.maturityDate ? formData.maturityDate.toISOString() : null,
@@ -333,7 +335,12 @@ export default function NewPolicyForm({ agentValue }: { agentValue?: any }) {
                 });
                 // Reset form and redirect to policies list
                 resetForm();
-                router.push('/policy/all');
+
+                if (url.includes("group-policy")){
+                    router.push("/group-policy/group-life");
+                }else {
+                    router.push('/individual-policy/all');
+                }
             } else {
                 throw new Error(data.message || 'Failed to create policy');
             }

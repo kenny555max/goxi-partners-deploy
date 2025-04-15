@@ -88,7 +88,7 @@ export default function IndividualLifePage() {
                             <p>No policies found</p>
                         </div>
                     ) : (
-                        <PolicyTable policies={policies} />
+                        <PolicyTable policyType={"individual"} />
                     )}
                 </CardContent>
             </Card>

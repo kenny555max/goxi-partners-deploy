@@ -100,10 +100,10 @@ export async function GET() {
         ]);
 
         return NextResponse.json({
-            insured: totalInsured.value || 0,
-            sales: totalPayments.value || 0,
-            claims: totalClaims.value || 0,
-            policies: activePolicies.value || 0
+            insured: totalInsured.total_insured || 0,
+            sales: totalPayments.total_payments || 0,
+            claims: totalClaims.total_claims || 0,
+            policies: activePolicies.total_active_policies || 0
         });
     } catch (error) {
         console.error("Dashboard data fetch error:", error);
