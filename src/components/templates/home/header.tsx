@@ -69,7 +69,7 @@ const Header = () => {
                         <button className="px-4 py-2 login-button red-yellow-gradient-text">
                             Partner Login
                         </button>
-                        <button className="px-4 register-button py-2 red-yellow-gradient-background text-white">
+                        <button className="px-4 text-[14px] register-button py-2 red-yellow-gradient-background text-white">
                             Become A Partner
                         </button>
                     </div>

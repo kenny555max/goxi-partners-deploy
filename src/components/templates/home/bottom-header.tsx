@@ -62,7 +62,7 @@ const BottomHeader = () => {
                 <Link href={"/"} className="text-red-600 flex-shrink-0 text-2xl font-bold">
                     <Image src={"/assets/logo.png"} alt={"goxi-logo"} width={100} height={100} />
                 </Link>
-                <div className="hidden lg:flex space-x-4">
+                <div className="hidden xl:flex space-x-4">
                     <LinkItem href="#about" pathname={pathname}>
                         About GOXi
                     </LinkItem>
@@ -79,7 +79,7 @@ const BottomHeader = () => {
                         FAQs
                     </LinkItem>
                 </div>
-                <div className="hidden lg:flex space-x-4">
+                <div className="hidden xl:flex space-x-4">
                     <Button variant={"border"} onClick={() => router.push("/login")} text="Partner Login" className="red-yellow-gradient-text text-green-500 border border-green-500" />
                     <button
                         onClick={() => router.push("/register")}
@@ -87,14 +87,14 @@ const BottomHeader = () => {
                     >Become A Partner</button>
                 </div>
                 <button
-                    className="lg:hidden text-2xl text-green-500"
+                    className="xl:hidden text-2xl text-green-500"
                     onClick={toggleMenu}
                 >
                     {isOpen ? <FaTimes /> : <RxHamburgerMenu />}
                 </button>
             </div>
             {isOpen && (
-                <div className="bg-white lg:hidden absolute w-full shadow-lg z-40">
+                <div className="bg-white xl:hidden absolute w-full shadow-lg z-40">
                     <div className="w-full flex sm:w-[80%] mx-auto flex-col space-y-2 px-4 py-4">
                         <LinkItem pathname={pathname} className={"block w-full"} href="#about">About GOXi</LinkItem>
                         <LinkItem pathname={pathname} href="#why" className="block w-full">Why GOXi?</LinkItem>
