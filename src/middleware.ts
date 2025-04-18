@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Paths that don't require authentication
-const publicPaths = ['/login', '/register', '/thank-you', '/forgot-password', '/'];
+const publicPaths = ['/login', '/register', '/thank-you', '/forgot-password', '/', '/api'];
 
 // Protected paths that logged-in users shouldn't access
 const restrictedForLoggedInUsers = ['/login', '/register', '/forgot-password', '/'];
@@ -45,9 +45,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
 }
 
-// Only run middleware on specific paths
 export const config = {
-    matcher: [
-        '/((?!_next/static|_next/image|favicon.ico|assets|api/agents).*)',
-    ],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|assets|api).*)',
+  ],
 };
+
