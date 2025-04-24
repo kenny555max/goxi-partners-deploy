@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const API_URL = "https://microlifeapi.gibsonline.com";
+const API_URL = process.env.BASE_URL;
 
 export async function POST(request: NextRequest) {
     try {
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Make request to authenticate agent
-        const response = await fetch(`${API_URL}/api/v1/Agents/agent/authenticate`, {
+        const response = await fetch(`${API_URL}/Agents/agent/authenticate`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

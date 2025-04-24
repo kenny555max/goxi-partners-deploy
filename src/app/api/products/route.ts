@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const API_URL = "https://microlifeapi.gibsonline.com";
+const API_URL = process.env.BASE_URL;
 
 export async function GET(request: NextRequest) {
     try {
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 
         // If token doesn't exist, get a new one
         if (!token) {
-            const authResponse = await fetch(`${API_URL}/api/v1/Auth`, {
+            const authResponse = await fetch(`${API_URL}/Auth`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
         }
 
         // Make request to fetch products
-        const productsUrl = `${API_URL}/api/v1/Products${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+        const productsUrl = `${API_URL}/Products${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
         const response = await fetch(productsUrl, {
             method: "GET",
             headers: {

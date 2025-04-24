@@ -88,7 +88,7 @@ interface ApiResponse {
     statusCode?: number;
 }
 
-const API_URL = process.env.API_URL || 'https://microlifeapi.gibsonline.com';
+const API_URL = process.env.BASE_URL;
 
 /**
  * Get an authentication token, either from cookies or by making a new request
@@ -103,14 +103,14 @@ async function getAuthToken(): Promise<{ token: string | null; error?: string }>
         }
 
         // If token doesn't exist, get a new one
-        const authResponse = await fetch(`https://microlifeapi.gibsonline.com/api/v1/Agents/agent/authenticate`, {
+        const authResponse = await fetch(`${API_URL}/Agents/agent/authenticate`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                appID: "info@lapo-nigeria.org",
-                password: "test123"
+                appID: "admin@example.com",
+                password: "adminpass123"
             }),
         });
 
@@ -237,6 +237,7 @@ async function parseApiResponse(response: Response): Promise<ApiResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
     try {
         // Check if token exists in cookies
+        /*
         const token = (await cookies()).get('goxi-token');
 
         let accessToken = null;
@@ -308,6 +309,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             accessToken = token.value;
         }
 
+         */
+
         // Parse the incoming request body from the form
         const formData: FormData = await request.json();
         console.log("Received form data:", formData);
@@ -357,14 +360,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         console.log("Sending policy data to API:", policyRequestData);
 
-        // Make request to create policy
-        const createPolicyResponse = await fetch(`${API_URL}/api/v1/Policies/create`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessToken}`
-            },
-            body: JSON.stringify({
+
+        const endpoint = formData.isOrg ?
+            `${API_URL}/Policies/create` :
+            `${API_URL}/Policies/create/individual`;
+
+        const postBody = {
+            group: {
                 "insured": {
                     "title": "string",
                     lastName: formData.surname || "",
@@ -375,7 +377,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                     address: formData.address || "",
                     phoneLine1: formData.phoneNo || "",
                     phoneLine2: "",
-                    "isOrg": formData.isOrg,
+                    "isOrg": true, //formData.isOrg,
                     "orgName": "string",
                     "orgRegNumber": "string",
                     "orgRegDate": "2025-04-15T14:17:39.046Z",
@@ -408,8 +410,70 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 sumInsured: parseFloat(formData.sumInsured || "0"),
                 grossPremium: parseFloat(formData.premium || "0"),
                 "customerID": "string"
-            }),
+            },
+            individual: {
+                "insured": {
+                    "surname": "string",
+                    "fullName": "string",
+                    "otherNames": "string",
+                    "occupation": "string",
+                    "nationalID": "string",
+                    "address": "string",
+                    "mobilePhone": "string",
+                    "landPhone": "string",
+                    "email": "string",
+                    "cityLGA": "string",
+                    "stateID": "string",
+                    "nationality": "string",
+                    "dateOfBirth": "2025-04-22T12:44:30.896Z",
+                    "kycType": "NOT_AVAILABLE",
+                    "kycNumber": "string",
+                    "kycIssueDate": "2025-04-22T12:44:30.896Z",
+                    "kycExpiryDate": "2025-04-22T12:44:30.896Z",
+                    "nextOfKin": {
+                        "title": "string",
+                        "lastName": "string",
+                        "firstName": "string",
+                        "otherName": "string",
+                        "gender": "MALE",
+                        "email": "user@example.com",
+                        "address": "string",
+                        "phoneLine1": "string",
+                        "phoneLine2": "string"
+                    }
+                },
+                "transDate": "2025-04-22T12:44:30.896Z",
+                "agentID": "string",
+                "customerID": "01082204959",
+                "productID": "AP",
+                "startDate": "2025-04-22T12:44:30.896Z",
+                "maturityDate": "2025-04-22T12:44:30.896Z",
+                "frequencyOfPayment": "string",
+                "sumAssured": 0,
+                "basicPremium": 0
+            }
+        }
+
+        const body = formData.isOrg ? { ...postBody.group } : { ...postBody.individual };
+
+        console.log(endpoint);
+        console.log(body);
+
+        const { token, error: authError } = await getAuthToken();
+
+        console.log('token here', token);
+
+        // Make request to create policy
+        const createPolicyResponse = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(body),
         });
+
+        console.log(createPolicyResponse);
 
         // Parse the response
         const responseData = await parseApiResponse(createPolicyResponse);
@@ -472,8 +536,8 @@ export async function GET(request: NextRequest) {
 
         // Determine which endpoint to use based on policyType
         const endpoint = policyType === 'group'
-            ? '/api/v1/Policies/group'
-            : '/api/v1/Policies/policies/individual';
+            ? '/Policies/group'
+            : '/Policies/policies/individual';
 
         // Fetch policies using the token
         const policiesResponse = await fetch(`${API_URL}${endpoint}`, {

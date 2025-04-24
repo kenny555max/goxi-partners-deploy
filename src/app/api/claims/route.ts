@@ -20,7 +20,7 @@ interface ErrorResponse {
     error: string;
 }
 
-const API_URL = "http://microlifetestapi.newgibsonline.com";
+const API_URL = process.env.BASE_URL;
 
 export async function GET(request: Request): Promise<NextResponse<Claim[] | ErrorResponse>> {
     try {
@@ -40,7 +40,7 @@ export async function GET(request: Request): Promise<NextResponse<Claim[] | Erro
 
         // If token doesn't exist, get a new one
         if (!token) {
-            const authResponse = await fetch(`${API_URL}/api/v1/Auth`, {
+            const authResponse = await fetch(`${API_URL}/Auth`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

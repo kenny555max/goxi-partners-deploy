@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import {cookies} from "next/headers";
 
-const API_URL = "http://microlifetestapi.newgibsonline.com";
+const API_URL = process.env.BASE_URL;
 
 export async function GET() {
     try {
@@ -13,7 +13,7 @@ export async function GET() {
 
         // If token doesn't exist, get a new one
         if (!token) {
-            const authResponse = await fetch(`${API_URL}/api/v1/Auth`, {
+            const authResponse = await fetch(`${API_URL}/Auth`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -51,7 +51,7 @@ export async function GET() {
         }
 
         // Fetch data from the external API
-        const response = await fetch('http://microlifetestapi.newgibsonline.com/api/v1/IndividualLife', {
+        const response = await fetch(`${API_URL}/IndividualLife`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

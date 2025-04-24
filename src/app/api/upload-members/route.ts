@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from "next/headers";
 
 // Updated API URL
-const EXTERNAL_API_URL = 'https://microlifeapi.gibsonline.com/api/v1/Documents/Upload/Policy';
-const API_URL = "https://microlifeapi.gibsonline.com";
+const API_URL = process.env.BASE_URL;
+const EXTERNAL_API_URL = `${API_URL}/Documents/Upload/Policy`;
 
 export async function POST(req: NextRequest) {
     try {

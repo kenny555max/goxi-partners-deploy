@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 // Define the API URL - ideally this would come from an environment variable
-const API_URL = "https://microlifeapi.gibsonline.com";
+const API_URL = process.env.BASE_URL;
 
 export async function POST(request: NextRequest) {
     try {
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
         // If token doesn't exist, get a new one
         if (!token) {
-            const authResponse = await fetch(`${API_URL}/api/v1/Auth`, {
+            const authResponse = await fetch(`${API_URL}/Auth`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
         };
 
         // Make the API request to submit the claim
-        const claimResponse = await fetch(`${API_URL}/api/v1/Claims`, {
+        const claimResponse = await fetch(`${API_URL}/Claims`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

@@ -1,9 +1,11 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+const API_URL = process.env.BASE_URL;
+
 export async function POST() {
     try {
-        const response = await fetch(`https://microlifeapi.gibsonline.com/api/v1/Auth`, {
+        const response = await fetch(`${API_URL}/Auth`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

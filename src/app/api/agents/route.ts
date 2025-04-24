@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const API_URL = "https://microlifeapi.gibsonline.com";
+const API_URL = process.env.BASE_URL;
 
 export async function POST(request: NextRequest) {
     try {
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
 
         // If token doesn't exist, get a new one
         if (!token) {
-            const authResponse = await fetch(`${API_URL}/api/v1/Auth`, {
+            const authResponse = await fetch(`${API_URL}/Auth`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
         const agentData = await request.json();
 
         // Make request to create agent
-        const response = await fetch(`${API_URL}/api/v1/Agents`, {
+        const response = await fetch(`${API_URL}/Agents`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

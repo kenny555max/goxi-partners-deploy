@@ -2,7 +2,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-const API_URL = "https://microlifeapi.gibsonline.com";
+const API_URL = process.env.BASE_URL;
 
 // Helper function to handle authentication
 async function getAccessToken() {
@@ -16,7 +16,7 @@ async function getAccessToken() {
         }
 
         // Otherwise, get a new token
-        const authResponse = await fetch(`${API_URL}/api/v1/Auth`, {
+        const authResponse = await fetch(`${API_URL}/Auth`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

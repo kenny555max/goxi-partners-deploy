@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { saveAgentDataToCookies, AgentData } from '@/utils/agentCookies';
 
-const API_URL = "http://microlifetestapi.newgibsonline.com";
+const API_URL = process.env.BASE_URL;
 
 // Update the type definition for the route handler
 export async function GET(
@@ -21,7 +21,7 @@ export async function GET(
 
         // If token doesn't exist, get a new one
         if (!token) {
-            const authResponse = await fetch(`${API_URL}/api/v1/Auth`, {
+            const authResponse = await fetch(`${API_URL}/Auth`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -58,8 +58,10 @@ export async function GET(
             accessToken = token.value;
         }
 
+        console.log(`${API_URL}/Agents/${agentId}`)
+
         // Fetch agent data
-        const apiResponse = await fetch(`${API_URL}/api/v1/Agents/${agentId}`, {
+        const apiResponse = await fetch(`${API_URL}/Agents/${agentId}`, {
             method: 'GET',
             headers: {
                 "Content-Type": "application/json",
@@ -67,11 +69,12 @@ export async function GET(
             }
         });
 
+        const data = await apiResponse.json();
+
         if (!apiResponse.ok) {
             throw new Error(`API request failed with status: ${apiResponse.status}`);
         }
 
-        const data = await apiResponse.json();
         console.log('Agent data:', data);
 
         // Extract relevant fields for agent data
