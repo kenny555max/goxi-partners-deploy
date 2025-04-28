@@ -33,52 +33,9 @@ export async function GET(request: Request): Promise<NextResponse<Claim[] | Erro
         const pageSize = url.searchParams.get('pageSize') || '10';
 
         // Check if token exists in cookies
-        const cookieStore = cookies();
-        const token = (await cookieStore).get('goxi-token');
+          const token = request.cookies.get('goxi-auth-token')?.value;
 
-        let accessToken: string | null = null;
-
-        // If token doesn't exist, get a new one
-        if (!token) {
-            const authResponse = await fetch(`${API_URL}/Auth`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    appID: "GOXI",
-                    password: "api@goxi_micro"
-                }),
-            });
-
-            if (!authResponse.ok) {
-                const errorText = await authResponse.text();
-                console.error('Authentication failed:', authResponse.status, errorText);
-
-                return NextResponse.json<ErrorResponse>(
-                    { error: "Authentication failed" },
-                    { status: 401 }
-                );
-            }
-
-            const authData: AuthResponse = await authResponse.json();
-
-            // Set token in cookies
-            (await cookieStore).set({
-                name: 'goxi-token',
-                value: authData.accessToken,
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                maxAge: authData.expiresIn,
-                path: '/',
-            });
-
-            // Use the new token
-            accessToken = authData.accessToken;
-        } else {
-            // Use existing token
-            accessToken = token.value;
-        }
+        const accessToken = JSON.parse(token);
 
         // Build query string for API call
         const queryParams = new URLSearchParams();
@@ -97,7 +54,7 @@ export async function GET(request: Request): Promise<NextResponse<Claim[] | Erro
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`,
+                'Authorization': `Bearer ${accessToken.accessToken}`,
             },
             // Using next.js 13+ fetch behavior with cache options
             cache: 'no-store'

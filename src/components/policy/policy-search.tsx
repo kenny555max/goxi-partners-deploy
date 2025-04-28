@@ -181,7 +181,7 @@ const PolicySearch: React.FC = () => {
                                         <UserIcon className="text-custom-green mr-3 h-5 w-5 mt-0.5" />
                                         <div>
                                             <p className="text-sm text-gray-500 font-medium">Insured Name</p>
-                                            <p className="text-foreground font-semibold">{policyDetails.insuredName}</p>
+                                            <p className="text-black font-semibold">{policyDetails.insuredName}</p>
                                         </div>
                                     </div>
 
@@ -189,7 +189,7 @@ const PolicySearch: React.FC = () => {
                                         <HomeIcon className="text-custom-green mr-3 h-5 w-5 mt-0.5" />
                                         <div>
                                             <p className="text-sm text-gray-500 font-medium">Address</p>
-                                            <p className="text-foreground">{policyDetails.address}</p>
+                                            <p className="text-black">{policyDetails.address}</p>
                                         </div>
                                     </div>
 
@@ -197,7 +197,7 @@ const PolicySearch: React.FC = () => {
                                         <PhoneIcon className="text-custom-green mr-3 h-5 w-5 mt-0.5" />
                                         <div>
                                             <p className="text-sm text-gray-500 font-medium">Phone Number</p>
-                                            <p className="text-foreground">{policyDetails.phone}</p>
+                                            <p className="text-black">{policyDetails.phone}</p>
                                         </div>
                                     </div>
 
@@ -205,7 +205,7 @@ const PolicySearch: React.FC = () => {
                                         <MailIcon className="text-custom-green mr-3 h-5 w-5 mt-0.5" />
                                         <div>
                                             <p className="text-sm text-gray-500 font-medium">Email Address</p>
-                                            <p className="text-foreground">{policyDetails.email}</p>
+                                            <p className="text-black">{policyDetails.email}</p>
                                         </div>
                                     </div>
 
@@ -213,7 +213,7 @@ const PolicySearch: React.FC = () => {
                                         <UserCheckIcon className="text-custom-green mr-3 h-5 w-5 mt-0.5" />
                                         <div>
                                             <p className="text-sm text-gray-500 font-medium">Agent</p>
-                                            <p className="text-foreground">{policyDetails.agent}</p>
+                                            <p className="text-black">{policyDetails.agent}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -221,14 +221,14 @@ const PolicySearch: React.FC = () => {
                                 <div className="space-y-4">
                                     <div className="bg-gray-50 p-3 rounded-md">
                                         <p className="text-sm text-gray-500 font-medium">Product</p>
-                                        <p className="text-foreground font-semibold">{policyDetails.product}</p>
+                                        <p className="text-black font-semibold">{policyDetails.product}</p>
                                     </div>
 
                                     <div className="flex items-start">
                                         <CalendarIcon className="text-custom-green mr-3 h-5 w-5 mt-0.5" />
                                         <div>
                                             <p className="text-sm text-gray-500 font-medium">Period of Cover</p>
-                                            <p className="text-foreground">
+                                            <p className="text-black">
                                                 {policyDetails.periodStart} to {policyDetails.periodEnd}
                                             </p>
                                         </div>
@@ -238,7 +238,7 @@ const PolicySearch: React.FC = () => {
                                         <CalendarIcon className="text-custom-green mr-3 h-5 w-5 mt-0.5" />
                                         <div>
                                             <p className="text-sm text-gray-500 font-medium">Next Renewal Date</p>
-                                            <p className="text-foreground font-medium">{policyDetails.nextRenewal}</p>
+                                            <p className="text-black font-medium">{policyDetails.nextRenewal}</p>
                                         </div>
                                     </div>
 
@@ -246,7 +246,7 @@ const PolicySearch: React.FC = () => {
                                         <DollarSignIcon className="text-custom-green mr-3 h-5 w-5 mt-0.5" />
                                         <div>
                                             <p className="text-sm text-gray-500 font-medium">Sum Insured</p>
-                                            <p className="text-foreground font-semibold">
+                                            <p className="text-black font-semibold">
                                                 {formatCurrency(policyDetails.sumInsured)}
                                             </p>
                                         </div>
@@ -256,7 +256,7 @@ const PolicySearch: React.FC = () => {
                                         <DollarSignIcon className="text-custom-green mr-3 h-5 w-5 mt-0.5" />
                                         <div>
                                             <p className="text-sm text-gray-500 font-medium">Premium</p>
-                                            <p className="text-foreground font-semibold">
+                                            <p className="text-black font-semibold">
                                                 {formatCurrency(policyDetails.premium)}
                                             </p>
                                         </div>

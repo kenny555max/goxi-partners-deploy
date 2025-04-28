@@ -25,76 +25,9 @@ export async function POST(request: NextRequest) {
 
         // Authentication check
         // Check if token exists in cookies
-        const token = (await cookies()).get('goxi-token');
+          const token = request.cookies.get('goxi-auth-token')?.value;
 
-        let accessToken = null;
-
-        // If token doesn't exist, get a new one
-        if (!token) {
-            const authResponse = await fetch(`${API_URL}/Auth`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    appID: "GOXI",
-                    password: "api@goxi_micro"
-                }),
-            });
-
-            // Safely parse the auth response
-            if (!authResponse.ok) {
-                let errorMessage = "Authentication failed";
-                try {
-                    const contentType = authResponse.headers.get("content-type");
-                    if (contentType && contentType.includes("application/json")) {
-                        const errorText = await authResponse.text();
-                        if (errorText) {
-                            const errorData = JSON.parse(errorText);
-                            errorMessage = errorData.message || errorMessage;
-                        }
-                    }
-                } catch (parseError) {
-                    console.error("Error parsing auth error response:", parseError);
-                }
-
-                return NextResponse.json(
-                    { error: errorMessage },
-                    { status: 401 }
-                );
-            }
-
-            try {
-                const authText = await authResponse.text();
-                if (!authText.trim()) {
-                    throw new Error("Empty authentication response");
-                }
-
-                const authData = JSON.parse(authText);
-
-                // Set token in cookies
-                (await cookies()).set({
-                    name: 'goxi-token',
-                    value: authData.accessToken,
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    maxAge: authData.expiresIn,
-                    path: '/',
-                });
-
-                // Use the new token
-                accessToken = authData.accessToken;
-            } catch (parseError) {
-                console.error("Error parsing auth response:", parseError);
-                return NextResponse.json(
-                    { error: "Failed to process authentication response" },
-                    { status: 500 }
-                );
-            }
-        } else {
-            // Use existing token
-            accessToken = token.value;
-        }
+          const accessToken = JSON.parse(token);
 
         // Process file if present (for future implementation)
         const file = formData.get('supportFile') as File | null;
@@ -124,7 +57,7 @@ export async function POST(request: NextRequest) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessToken}`
+                "Authorization": `Bearer ${accessToken.accessToken}`
             },
             body: JSON.stringify(claimRequestBody)
         });

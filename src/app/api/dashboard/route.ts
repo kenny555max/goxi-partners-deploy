@@ -2,7 +2,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-const API_URL = process.env.BASE_URL;
+const API_URL = process.env.PARTIAL_BASE_URL;
 
 // Helper function to handle authentication
 async function getAccessToken() {
@@ -56,18 +56,21 @@ async function getAccessToken() {
 }
 
 // Helper function to safely fetch data
-async function fetchWithAuth(endpoint: string) {
+async function fetchWithAuth(endpoint: string, request) {
     try {
-        const accessToken = await getAccessToken();
+        const token = request.cookies.get('goxi-auth-token')?.value;
+
+        const accessToken = JSON.parse(token);
 
         const response = await fetch(`${API_URL}${endpoint}`, {
             method: "GET",
             headers: {
-                "Authorization": `Bearer ${accessToken}`
+                "Authorization": `Bearer ${accessToken.accessToken}`
             },
         });
 
         if (!response.ok) {
+            console.log('spanishhhh', response);
             throw new Error(`Failed to fetch data: ${response.status}`);
         }
 
@@ -89,14 +92,14 @@ async function fetchWithAuth(endpoint: string) {
 }
 
 // API route for getting all dashboard data
-export async function GET() {
+export async function GET(request) {
     try {
         // Fetch all data in parallel
         const [totalInsured, totalPayments, totalClaims, activePolicies] = await Promise.all([
-            fetchWithAuth("/api/Dashboard/total_insured"),
-            fetchWithAuth("/api/Dashboard/total_payments"),
-            fetchWithAuth("/api/Dashboard/total_claims"),
-            fetchWithAuth("/api/Dashboard/individual/active_policies")
+            fetchWithAuth("/api/Dashboard/total_insured", request),
+            fetchWithAuth("/api/Dashboard/total_payments", request),
+            fetchWithAuth("/api/Dashboard/total_claims", request),
+            fetchWithAuth("/api/Dashboard/individual/active_policies", request)
         ]);
 
         return NextResponse.json({

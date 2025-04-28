@@ -80,8 +80,11 @@ export async function POST(request: NextRequest) {
         // Get agent data from request body
         const agentData = await request.json();
 
+        console.log('yeah yeahnn', agentData);
+        console.log(`${API_URL}/Agents/agent/authenticate`)
+
         // Make request to create agent
-        const response = await fetch(`${API_URL}/Agents`, {
+        const response = await fetch(`${API_URL}/Agents/agent/authenticate`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -92,15 +95,14 @@ export async function POST(request: NextRequest) {
 
         // Safely handle agent creation response
         if (!response.ok) {
-            let errorMessage = "Failed to create agentss";
+            let errorMessage = "Failed to create agent";
             try {
                 const contentType = response.headers.get("content-type");
                 if (contentType && contentType.includes("application/json")) {
                     const errorText = await response.text();
                     if (errorText) {
                         const errorData = JSON.parse(errorText);
-                        //console.log(errorData);
-                        errorMessage = errorData || errorMessage;
+                        errorMessage = errorData.message || errorMessage;
                     }
                 }
             } catch (parseError) {
@@ -123,6 +125,18 @@ export async function POST(request: NextRequest) {
                 }
 
                 const data = JSON.parse(responseText);
+
+                 const agentDataString = JSON.stringify(data);
+                //console.log(data);
+                // Set token in cookies
+                (await cookies()).set({
+                    name: 'goxi-auth-token',
+                    value: agentDataString,
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: data.expiresIn,
+                    path: '/',
+                });
                 return NextResponse.json(data);
             } else {
                 return NextResponse.json({

@@ -7,49 +7,9 @@ const EXTERNAL_API_URL = `${API_URL}/Documents/Upload/Policy`;
 
 export async function POST(req: NextRequest) {
     try {
-        // Check if token exists in cookies
-        const token = (await cookies()).get('goxi-token');
+          const token = req.cookies.get('goxi-auth-token')?.value;
 
-        let accessToken = null;
-
-        // If token doesn't exist, get a new one
-        if (!token) {
-            const authResponse = await fetch(`${API_URL}/api/v1/Auth`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    appID: "GOXI",
-                    password: "api@goxi_micro"
-                }),
-            });
-
-            if (!authResponse.ok) {
-                return NextResponse.json(
-                    { error: "Authentication failed" },
-                    { status: 401 }
-                );
-            }
-
-            const authData = await authResponse.json();
-
-            // Set token in cookies
-            (await cookies()).set({
-                name: 'goxi-token',
-                value: authData.accessToken,
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                maxAge: authData.expiresIn,
-                path: '/',
-            });
-
-            // Use the new token
-            accessToken = authData.accessToken;
-        } else {
-            // Use existing token
-            accessToken = token.value;
-        }
+          const accessToken = JSON.parse(token);
 
         // Extract form data
         const formData = await req.formData();
@@ -108,7 +68,7 @@ export async function POST(req: NextRequest) {
         const response = await fetch(EXTERNAL_API_URL, {
             method: "POST",
             headers: {
-                'Authorization': `Bearer ${accessToken}`,
+                'Authorization': `Bearer ${accessToken.accessToken}`,
                 // No Content-Type header for multipart/form-data as the browser will set it with boundary
             },
             body: apiFormData

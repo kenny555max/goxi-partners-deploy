@@ -236,84 +236,9 @@ async function parseApiResponse(response: Response): Promise<ApiResponse> {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
     try {
-        // Check if token exists in cookies
-        /*
-        const token = (await cookies()).get('goxi-token');
-
-        let accessToken = null;
-
-        // If token doesn't exist, get a new one
-        if (!token) {
-            const authResponse = await fetch(`${API_URL}/api/v1/Auth`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    appID: "GOXI",
-                    password: "api@goxi_micro"
-                }),
-            });
-
-            // Safely parse the auth response
-            if (!authResponse.ok) {
-                let errorMessage = "Authentication failed";
-                try {
-                    const contentType = authResponse.headers.get("content-type");
-                    if (contentType && contentType.includes("application/json")) {
-                        const errorText = await authResponse.text();
-                        if (errorText) {
-                            const errorData = JSON.parse(errorText);
-                            errorMessage = errorData.message || errorMessage;
-                        }
-                    }
-                } catch (parseError) {
-                    console.error("Error parsing auth error response:", parseError);
-                }
-
-                return NextResponse.json(
-                    { error: errorMessage },
-                    { status: 401 }
-                );
-            }
-
-            try {
-                const authText = await authResponse.text();
-                if (!authText.trim()) {
-                    throw new Error("Empty authentication response");
-                }
-
-                const authData = JSON.parse(authText);
-
-                // Set token in cookies
-                (await cookies()).set({
-                    name: 'goxi-token',
-                    value: authData.accessToken,
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    maxAge: authData.expiresIn,
-                    path: '/',
-                });
-
-                // Use the new token
-                accessToken = authData.accessToken;
-            } catch (parseError) {
-                console.error("Error parsing auth response:", parseError);
-                return NextResponse.json(
-                    { error: "Failed to process authentication response" },
-                    { status: 500 }
-                );
-            }
-        } else {
-            // Use existing token
-            accessToken = token.value;
-        }
-
-         */
 
         // Parse the incoming request body from the form
         const formData: FormData = await request.json();
-        console.log("Received form data:", formData);
 
         // Split otherNames into firstName and otherName if needed
         let firstName = "";
@@ -358,12 +283,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             grossPremium: parseFloat(formData.premium || "0")
         };
 
-        console.log("Sending policy data to API:", policyRequestData);
-
-
         const endpoint = formData.isOrg ?
             `${API_URL}/Policies/create` :
             `${API_URL}/Policies/create/individual`;
+
+        const token = request.cookies.get('goxi-auth-token')?.value;
+
+        const accessToken = JSON.parse(token);
 
         const postBody = {
             group: {
@@ -403,7 +329,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                     }
                 },
                 "branchID": "001",
-                agentID: "G/A/410000808",
+                agentID: accessToken.agentID,//"G/A/410000808",
                 productID: formData.product || "",
                 startDate: formData.startDate || new Date().toISOString(),
                 endDate: formData.maturityDate || new Date().toISOString(),
@@ -413,19 +339,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             },
             individual: {
                 "insured": {
-                    "surname": "string",
-                    "fullName": "string",
+                    gender: mapGender(formData.gender), // Convert to expected format (MALE/FEMALE)
+                    email: formData.customerEmail || "",
+                    address: formData.address || "",
+                    landPhone: formData.phoneNo || "",
+                    phoneLine2: "",
+                    "surname": formData.surname || "",
+                    "fullName": firstName + " " + otherName,
                     "otherNames": "string",
                     "occupation": "string",
                     "nationalID": "string",
                     "address": "string",
-                    "mobilePhone": "string",
-                    "landPhone": "string",
-                    "email": "string",
-                    "cityLGA": "string",
-                    "stateID": "string",
-                    "nationality": "string",
-                    "dateOfBirth": "2025-04-22T12:44:30.896Z",
+                    "mobilePhone": formData.phoneNo || "",
+                     cityLGA: formData.city || "",
+                    stateID: formData.state || "",
+                    nationality: "Nigeria", // Default value
+                    dateOfBirth: formData.dob || new Date().toISOString(),
                     "kycType": "NOT_AVAILABLE",
                     "kycNumber": "string",
                     "kycIssueDate": "2025-04-22T12:44:30.896Z",
@@ -443,32 +372,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                     }
                 },
                 "transDate": "2025-04-22T12:44:30.896Z",
-                "agentID": "string",
-                "customerID": "01082204959",
-                "productID": "AP",
-                "startDate": "2025-04-22T12:44:30.896Z",
-                "maturityDate": "2025-04-22T12:44:30.896Z",
+                "agentID": accessToken.agentID, //"string",
+                //"customerID": "01082204959",
+                productID: formData.product || "",
+                startDate: formData.startDate || new Date().toISOString(),
+                "maturityDate": formData.maturityDate || new Date().toISOString(),
                 "frequencyOfPayment": "string",
-                "sumAssured": 0,
-                "basicPremium": 0
+                "sumAssured": parseFloat(formData.sumInsured || "0"),
+                "basicPremium": parseFloat(formData.premium || "0")
             }
         }
 
         const body = formData.isOrg ? { ...postBody.group } : { ...postBody.individual };
-
-        console.log(endpoint);
-        console.log(body);
-
-        const { token, error: authError } = await getAuthToken();
-
-        console.log('token here', token);
 
         // Make request to create policy
         const createPolicyResponse = await fetch(endpoint, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                "Authorization": `Bearer ${accessToken.accessToken}`
             },
             body: JSON.stringify(body),
         });
@@ -477,8 +399,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         // Parse the response
         const responseData = await parseApiResponse(createPolicyResponse);
-
-        console.log('yeah yeah', responseData);
 
         // If it fails with a 401, our token might be expired - try to refresh and retry
         if (responseData.statusCode === 401) {
@@ -524,13 +444,16 @@ export async function GET(request: NextRequest) {
         const policyType = searchParams.get('type') || 'individual'; // Default to individual if not specified
 
         // Get authentication token
-        const { token, error: authError } = await getAuthToken();
+        //const { token, error: authError } = await getAuthToken();
+            const token = request.cookies.get('goxi-auth-token')?.value;
+
+            const accessToken = JSON.parse(token);
 
         if (!token) {
             return NextResponse.json({
                 success: false,
                 message: "Authentication failed",
-                error: authError
+                error: 'Unauthorized'//authError
             }, { status: 401 });
         }
 
@@ -542,7 +465,7 @@ export async function GET(request: NextRequest) {
         // Fetch policies using the token
         const policiesResponse = await fetch(`${API_URL}${endpoint}`, {
             headers: {
-                "Authorization": `Bearer ${token}`
+                "Authorization": `Bearer ${accessToken.accessToken}`
             },
             cache: "no-store"
         });
@@ -555,7 +478,7 @@ export async function GET(request: NextRequest) {
         // If it fails with a 401, our token might be expired
         if (responseData.statusCode === 401) {
             // Clear the current token cookie to force a new token on next request
-            (await cookies()).delete('agent-token');
+            (await cookies()).delete('goxi-auth-token');
 
             return NextResponse.json({
                 success: false,
