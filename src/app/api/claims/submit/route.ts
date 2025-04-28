@@ -25,7 +25,16 @@ export async function POST(request: NextRequest) {
 
         // Authentication check
         // Check if token exists in cookies
+                const cookieStore = cookies();
+
           const token = request.cookies.get('goxi-auth-token')?.value;
+
+          if (!token){
+              return NextResponse.json({
+                  error: "unauthorized",
+                  status: 401
+              })
+          }
 
           const accessToken = JSON.parse(token);
 

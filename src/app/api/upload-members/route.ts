@@ -7,7 +7,15 @@ const EXTERNAL_API_URL = `${API_URL}/Documents/Upload/Policy`;
 
 export async function POST(req: NextRequest) {
     try {
+                const cookieStore = cookies();
           const token = req.cookies.get('goxi-auth-token')?.value;
+
+          if (!token){
+            return NextResponse.json({
+                error: "unauthorized",
+                status: 401
+            })
+          }
 
           const accessToken = JSON.parse(token);
 

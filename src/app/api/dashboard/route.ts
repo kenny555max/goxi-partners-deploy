@@ -1,6 +1,6 @@
 // src/app/api/dashboard/route.ts
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 const API_URL = process.env.PARTIAL_BASE_URL;
 
@@ -56,9 +56,16 @@ async function getAccessToken() {
 }
 
 // Helper function to safely fetch data
-async function fetchWithAuth(endpoint: string, request) {
+async function fetchWithAuth(endpoint: string, request: NextRequest) {
     try {
         const token = request.cookies.get('goxi-auth-token')?.value;
+
+        if (!token){
+            return NextResponse.json({
+                error: "unauthorized",
+                status: 401
+            })
+        }
 
         const accessToken = JSON.parse(token);
 
@@ -92,7 +99,7 @@ async function fetchWithAuth(endpoint: string, request) {
 }
 
 // API route for getting all dashboard data
-export async function GET(request) {
+export async function GET(request: NextRequest) {
     try {
         // Fetch all data in parallel
         const [totalInsured, totalPayments, totalClaims, activePolicies] = await Promise.all([

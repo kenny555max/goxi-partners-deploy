@@ -1,5 +1,5 @@
 // app/api/policies/individual-life/route.ts
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { cookies } from "next/headers";
 
 // Define TypeScript interfaces
@@ -22,7 +22,7 @@ interface ErrorResponse {
 
 const API_URL = process.env.BASE_URL;
 
-export async function GET(request: Request): Promise<NextResponse<Claim[] | ErrorResponse>> {
+export async function GET(request: NextRequest): Promise<NextResponse<Claim[] | ErrorResponse>> {
     try {
         // Get query parameters from the request URL
         const url = new URL(request.url);
@@ -32,8 +32,17 @@ export async function GET(request: Request): Promise<NextResponse<Claim[] | Erro
         const pageNo = url.searchParams.get('pageNo') || '1';
         const pageSize = url.searchParams.get('pageSize') || '10';
 
+                const cookieStore = cookies();
+
         // Check if token exists in cookies
           const token = request.cookies.get('goxi-auth-token')?.value;
+
+          if (!token){
+            return NextResponse.json({
+                error: "Unauthorized",
+                status: 401
+            })
+          }
 
         const accessToken = JSON.parse(token);
 
@@ -63,7 +72,7 @@ export async function GET(request: Request): Promise<NextResponse<Claim[] | Erro
         // Handle token expiry
         if (response.status === 401) {
             // Token might have expired, clear it and ask the client to retry
-            (await cookieStore).delete('goxi-token');
+            (await cookieStore).delete('goxi-auth-token');
 
             return NextResponse.json<ErrorResponse>(
                 { error: "Authentication token expired, please retry your request" },

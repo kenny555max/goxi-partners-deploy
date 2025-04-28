@@ -161,7 +161,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
 
                router.push(`/thank-you?agentId=${data.agentID}`);
             }
-        } catch (error) {
+        } catch (error: any) {
+            if (!error?.message){
+                setError(`Failed to ${isLoginForm ? 'login' : 'register'}. Please check your credentials and try again.`);
+                return;
+            }
             setError(error?.message || `Failed to ${isLoginForm ? 'login' : 'register'}. Please check your credentials and try again.`);
         } finally {
             setIsLoading(false);

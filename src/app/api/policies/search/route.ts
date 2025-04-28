@@ -22,6 +22,13 @@ export async function GET(request: NextRequest) {
 
          const token = request.cookies.get('goxi-auth-token')?.value;
 
+         if (!token){
+                       return NextResponse.json({
+                           error: "unauthorized",
+                           status: 401
+                       })
+                   }
+
          const accessToken = JSON.parse(token);
 
         // Build query string for policy search

@@ -289,6 +289,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         const token = request.cookies.get('goxi-auth-token')?.value;
 
+        if (!token){
+            return NextResponse.json({
+                error: "unauthorized",
+                status: 401
+            })
+        }
+
         const accessToken = JSON.parse(token);
 
         const postBody = {
@@ -349,7 +356,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                     "otherNames": "string",
                     "occupation": "string",
                     "nationalID": "string",
-                    "address": "string",
                     "mobilePhone": formData.phoneNo || "",
                      cityLGA: formData.city || "",
                     stateID: formData.state || "",
@@ -445,7 +451,16 @@ export async function GET(request: NextRequest) {
 
         // Get authentication token
         //const { token, error: authError } = await getAuthToken();
+                const cookieStore = cookies();
+
             const token = request.cookies.get('goxi-auth-token')?.value;
+
+            if (!token){
+                return NextResponse.json({
+                    error: "unauthorized",
+                    status: 401
+                })
+            }
 
             const accessToken = JSON.parse(token);
 
