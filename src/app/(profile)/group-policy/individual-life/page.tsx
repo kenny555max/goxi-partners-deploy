@@ -88,7 +88,11 @@ export default function IndividualLifePage() {
                             <p>No policies found</p>
                         </div>
                     ) : (
-                        <PolicyTable policyType={"individual"} />
+                        <PolicyTable
+                            policyType={"individual"}
+                            companyLogo="/assets/logo.png"
+                            companyName="GOXI Ltd"
+                        />
                     )}
                 </CardContent>
             </Card>

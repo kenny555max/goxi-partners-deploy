@@ -128,7 +128,11 @@ export default function ExsitingPolicyPage(){
 
     return(
         <div>
-            <PolicyTable policyType={"individual"} />
+            <PolicyTable
+                policyType={"individual"}
+                companyLogo="/assets/logo.png"
+                companyName="GOXI Ltd"
+            />
         </div>
     );
 }

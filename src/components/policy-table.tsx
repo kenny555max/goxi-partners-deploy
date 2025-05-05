@@ -30,6 +30,8 @@ interface Policy {
 
 interface PolicyTableProps {
     policyType?: 'individual' | 'group';
+    companyLogo?: string; // Add prop for company logo
+    companyName?: string; // Add prop for company name
 }
 
 const StatusBadge = ({ status }: { status: Policy['status'] }) => {
@@ -47,7 +49,11 @@ const StatusBadge = ({ status }: { status: Policy['status'] }) => {
     );
 };
 
-const PolicyTable = ({ policyType = 'individual' }: PolicyTableProps) => {
+const PolicyTable = ({
+                         policyType = 'individual',
+                         companyLogo = '/images/company-logo.png', // Default logo path
+                         companyName = 'Insurance Company' // Default company name
+                     }: PolicyTableProps) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10;
@@ -147,27 +153,93 @@ const PolicyTable = ({ policyType = 'individual' }: PolicyTableProps) => {
         });
     };
 
-    // Function to generate and download PDF
+    // Function to generate PDF using jsPDF (browser-side PDF generation)
     const handlePDFDownload = () => {
-        // In a real application, you'd use a library like jsPDF or pdfmake
-        // This is a simplified mock implementation
         toast({
             title: "Generating PDF",
-            description: "Your PDF is being prepared for download.",
+            description: "Please wait while your PDF is being prepared...",
         });
 
-        // Simulate PDF generation delay
-        setTimeout(() => {
+        // Import jsPDF dynamically to avoid SSR issues
+        import('jspdf').then(async ({ default: jsPDF }) => {
+            try {
+                // Properly import jspdf-autotable
+                const autoTable = (await import('jspdf-autotable')).default;
+
+                const doc = new jsPDF();
+
+                // Add company logo (if exists)
+                try {
+                    // This requires the logo to be accessible as a data URL or public URL
+                    doc.addImage(companyLogo, 'PNG', 15, 10, 30, 30);
+                } catch (e) {
+                    console.warn('Could not add logo to PDF', e);
+                    // If logo fails to load, add a text placeholder for the company name
+                    doc.setFontSize(20);
+                    doc.text(companyName, 15, 25);
+                }
+
+                // Add title
+                doc.setFontSize(16);
+                doc.text('Policy Report', 15, 50);
+
+                // Add timestamp
+                doc.setFontSize(10);
+                doc.text(`Generated on ${new Date().toLocaleDateString()}`, 15, 58);
+
+                // Create table
+                const tableColumn = ['#', 'Policy No', 'Product', 'Insured', 'Period of Cover', 'FOP', 'Premium', 'Sum Insured', 'Status', 'Trans Date'];
+                const tableRows = filteredPolicies.map((policy: Policy, index: number) => [
+                    index + 1,
+                    policy.policyNo,
+                    policy.product,
+                    policy.insured,
+                    policy.periodOfCover,
+                    policy.fop,
+                    new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(policy.premium),
+                    new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(policy.sumInsured),
+                    policy.status,
+                    policy.transDate
+                ]);
+
+                // Use autoTable correctly
+                autoTable(doc, {
+                    head: [tableColumn],
+                    body: tableRows,
+                    startY: 65,
+                    styles: { fontSize: 8 },
+                    headStyles: { fillColor: [66, 66, 66] },
+                    alternateRowStyles: { fillColor: [240, 240, 240] },
+                    margin: { top: 65 }
+                });
+
+                // Save PDF
+                doc.save('policies.pdf');
+
+                toast({
+                    title: "Download Complete",
+                    description: "PDF file has been downloaded successfully.",
+                });
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                toast({
+                    title: "PDF Generation Failed",
+                    description: "Failed to generate PDF. Please try again later.",
+                    variant: "destructive",
+                });
+            }
+        }).catch((error) => {
+            console.error('Error loading jsPDF:', error);
             toast({
-                title: "Download Complete",
-                description: "PDF file has been downloaded successfully.",
+                title: "PDF Generation Failed",
+                description: "Could not load PDF generation library. Please try again later.",
+                variant: "destructive",
             });
-        }, 1500);
+        });
     };
 
-    // Function to handle printing
+    // Function to handle printing with company logo
     const handlePrint = () => {
-        // Open a new window with just the table content for printing
         const printWindow = window.open('', '_blank');
         if (printWindow) {
             const tableHTML = `
@@ -175,25 +247,45 @@ const PolicyTable = ({ policyType = 'individual' }: PolicyTableProps) => {
                 <head>
                     <title>Policy Report</title>
                     <style>
-                        body { font-family: Arial, sans-serif; }
-                        table { width: 100%; border-collapse: collapse; }
-                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        .report-header { display: flex; align-items: center; margin-bottom: 20px; }
+                        .logo { max-height: 60px; margin-right: 20px; }
+                        .company-info { flex-grow: 1; }
+                        .company-name { font-size: 22px; font-weight: bold; margin: 0; }
+                        .report-title { font-size: 18px; margin: 5px 0; }
+                        .report-date { color: #666; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
                         th { background-color: #f2f2f2; }
-                        .header { margin-bottom: 20px; }
                         .active { color: green; font-weight: bold; }
                         .expired { color: gray; }
                         .pending { color: orange; }
                         .cancelled { color: red; }
+                        @media print {
+                            .no-print { display: none; }
+                            body { margin: 0.5cm; }
+                        }
                     </style>
                 </head>
                 <body>
-                    <div class="header">
-                        <h1>My Policies</h1>
-                        <p>Generated on ${new Date().toLocaleDateString()}</p>
+                    <div class="report-header">
+                        <img src="${companyLogo}" alt="${companyName}" class="logo" onerror="this.style.display='none'">
+                        <div class="company-info">
+                            <h1 class="company-name">${companyName}</h1>
+                            <h2 class="report-title">Policy Report</h2>
+                            <p class="report-date">Generated on ${new Date().toLocaleDateString()}</p>
+                        </div>
                     </div>
+                    
+                    <div class="no-print">
+                        <button onclick="window.print()">Print Report</button>
+                        <button onclick="window.close()">Close</button>
+                    </div>
+                    
                     <table>
                         <thead>
                             <tr>
+                                <th>#</th>
                                 <th>Policy No</th>
                                 <th>Product</th>
                                 <th>Insured</th>
@@ -206,15 +298,16 @@ const PolicyTable = ({ policyType = 'individual' }: PolicyTableProps) => {
                             </tr>
                         </thead>
                         <tbody>
-                            ${filteredPolicies.map((policy: any) => `
+                            ${filteredPolicies.map((policy: any, index: number) => `
                                 <tr>
+                                    <td>${index + 1}</td>
                                     <td>${policy.policyNo}</td>
                                     <td>${policy.product}</td>
                                     <td>${policy.insured}</td>
                                     <td>${policy.periodOfCover}</td>
                                     <td>${policy.fop}</td>
-                                    <td>$${policy.premium.toLocaleString()}</td>
-                                    <td>$${policy.sumInsured.toLocaleString()}</td>
+                                    <td>${new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(policy.premium)}</td>
+                                    <td>${new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(policy.sumInsured)}</td>
                                     <td class="${policy.status}">${policy.status.charAt(0).toUpperCase() + policy.status.slice(1)}</td>
                                     <td>${policy.transDate}</td>
                                 </tr>
@@ -228,10 +321,10 @@ const PolicyTable = ({ policyType = 'individual' }: PolicyTableProps) => {
             printWindow.document.write(tableHTML);
             printWindow.document.close();
 
-            // Wait for content to load before printing
+            // Wait for content and images to load before printing
             printWindow.onload = function() {
-                printWindow.print();
-                // printWindow.close();
+                // Auto-print is now handled by button in the print window
+                // This gives time for the logo to load
             };
         } else {
             toast({
@@ -249,7 +342,7 @@ const PolicyTable = ({ policyType = 'individual' }: PolicyTableProps) => {
                 <p className="text-gray-600 mb-6">Find below all the insurance policies you have registered with us</p>
 
                 <div className="flex flex-col sm:flex-row justify-between space-y-4 sm:space-y-0 mb-6">
-                    <div className="flex space-x-2">
+                    <div className="flex flex-wrap gap-2">
                         <Button
                             variant="outline"
                             size="sm"
@@ -326,7 +419,6 @@ const PolicyTable = ({ policyType = 'individual' }: PolicyTableProps) => {
                                     <TableHead>Sum Insured</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead>Trans Date</TableHead>
-                                    {/*<TableHead className="w-12">Action</TableHead>*/}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -343,31 +435,6 @@ const PolicyTable = ({ policyType = 'individual' }: PolicyTableProps) => {
                                             <TableCell>{new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(policy.sumInsured)}</TableCell>
                                             <TableCell><StatusBadge status={policy.status} /></TableCell>
                                             <TableCell>{policy.transDate}</TableCell>
-                                            {/*<TableCell>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                                            <MoreHorizontal className="h-4 w-4"/>
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                        <DropdownMenuSeparator/>
-                                                        <DropdownMenuItem>
-                                                            <Eye className="h-4 w-4 mr-2"/>
-                                                            View
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem>
-                                                            <Edit className="h-4 w-4 mr-2"/>
-                                                            Edit
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem className="text-red-600">
-                                                            <Trash2 className="h-4 w-4 mr-2"/>
-                                                            Delete
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </TableCell>*/}
                                         </TableRow>
                                     ))
                                 ) : (

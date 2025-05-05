@@ -140,7 +140,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                 }
 
                 //setError("");
-                router.push("/dashboard");
+                //router.push("/dashboard");
+                window.location.reload();
             } else {
                 // Same endpoint for both login and register
                 const response = await fetch("/api/agents", {
