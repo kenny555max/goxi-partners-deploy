@@ -335,6 +335,8 @@ const PolicyTable = ({
         }
     };
 
+    console.log(paginatedPolicies);
+
     return (
         <div className="bg-white rounded-lg shadow">
             <div className="p-6">

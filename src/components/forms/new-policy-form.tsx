@@ -1,4 +1,5 @@
 'use client';
+'use client';
 // components/forms/NewPolicyForm.tsx
 import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { Input } from "@/components/ui/input";
@@ -24,19 +25,84 @@ type SelectOption = {
     label: string;
 };
 
-// Define product interface from API
-interface Product {
-    riskID: string;
-    productID: string;
-    productName: string;
-    description: string;
+// Define product and product type interfaces
+interface ProductType {
+    plan: string;
+    sumInsured: number;
+    annualPayment: number;
+    monthlyPayment: number;
 }
 
-// Define other option arrays
-const productTypeOptions: SelectOption[] = [
-    { value: "individual", label: "None | SI O | AP O | MP O" }
+// Update the Product interface to include productID
+interface Product {
+    id: string;
+    name: string;
+    productID: string; // Added productID field
+    types: ProductType[];
+}
+
+// Update the productsData array with productID for each product
+const productsData: Product[] = [
+    {
+        id: "asset-protection",
+        name: "ASSET PROTECTION",
+        productID: "AP", // Added productID
+        types: [
+            { plan: "Basic", sumInsured: 100000, annualPayment: 1000, monthlyPayment: 100 },
+            { plan: "Bronze", sumInsured: 120000, annualPayment: 1500, monthlyPayment: 150 }
+        ]
+    },
+    {
+        id: "goxi-coperative",
+        name: "GOXI COPERATIVE MEMBERS INSURANCE",
+        productID: "GCM", // Added productID
+        types: [
+            { plan: "Basic", sumInsured: 100000, annualPayment: 1890, monthlyPayment: 160 },
+            { plan: "Bronze", sumInsured: 250000, annualPayment: 5400, monthlyPayment: 450 }
+        ]
+    },
+    {
+        id: "goxi-family",
+        name: "GOXI FAMILY WELFARE INSURANCE",
+        productID: "GFMW", // Added productID
+        types: [
+            { plan: "Basic", sumInsured: 300000, annualPayment: 12000, monthlyPayment: 1000 },
+            { plan: "Bronze", sumInsured: 400000, annualPayment: 14400, monthlyPayment: 1200 },
+            { plan: "Gold", sumInsured: 600000, annualPayment: 15600, monthlyPayment: 1300 }
+        ]
+    },
+    {
+        id: "goxi-4-sure",
+        name: "GOXI 4 SURE",
+        productID: "GS", // Added productID
+        types: [
+            { plan: "Basic", sumInsured: 300000, annualPayment: 12000, monthlyPayment: 1000 }
+        ]
+    },
+    {
+        id: "ma-business",
+        name: "MA BUSINESS",
+        productID: "MAB", // Added productID
+        types: [
+            { plan: "Basic", sumInsured: 50000, annualPayment: 3000, monthlyPayment: 250 },
+            { plan: "Bronze", sumInsured: 70000, annualPayment: 4500, monthlyPayment: 375 },
+            { plan: "Silver", sumInsured: 100000, annualPayment: 6000, monthlyPayment: 500 },
+            { plan: "Gold", sumInsured: 120000, annualPayment: 7500, monthlyPayment: 625 },
+            { plan: "Platinum", sumInsured: 150000, annualPayment: 9000, monthlyPayment: 725 }
+        ]
+    },
+    {
+        id: "microleasing-protection",
+        name: "MICROLEASING PROTECTION",
+        productID: "MLP", // Added productID
+        types: [
+            { plan: "Basic 100K", sumInsured: 100000, annualPayment: 1000, monthlyPayment: 100 },
+            { plan: "Basic 150K", sumInsured: 150000, annualPayment: 2000, monthlyPayment: 200 }
+        ]
+    }
 ];
 
+// Define other option arrays
 const stateOptions: SelectOption[] = [
     { value: "lagos", label: "Lagos" }
 ];
@@ -59,17 +125,18 @@ const paymentFrequencyOptions: SelectOption[] = [
     { value: "annually", label: "Annually" },
 ];
 
-const policyCoverTypeOptions: SelectOption[] = [
-    { value: "basic", label: "Asset Protection Basic Cover" },
-    { value: "additional", label: "Asset Protection Additional Cover" },
-    { value: "ml-basic", label: "Micro Leasing Basic Cover" },
-    { value: "ml-extension", label: "Micro Leasing Extension" },
-];
+// const policyCoverTypeOptions: SelectOption[] = [
+//     { value: "basic", label: "Asset Protection Basic Cover" },
+//     { value: "additional", label: "Asset Protection Additional Cover" },
+//     { value: "ml-basic", label: "Micro Leasing Basic Cover" },
+//     { value: "ml-extension", label: "Micro Leasing Extension" },
+// ];
 
-// Define the form data type
+// Update PolicyFormData interface to include productID
 interface PolicyFormData {
     product: string;
     productType: string;
+    productID: string; // Added productID field
     agentEmail: string;
     sumInsured: string;
     premium: string;
@@ -102,18 +169,24 @@ export default function NewPolicyForm({ agentValue }: { agentValue?: any }) {
     const { toast } = useToast();
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-    const [isLoadingProducts, setIsLoadingProducts] = useState<boolean>(true);
-    const [products, setProducts] = useState<SelectOption[]>([]);
+    const [currentProductTypes, setCurrentProductTypes] = useState<SelectOption[]>([]);
     const url = window.location.href;
 
-    // Initialize form data with proper types
+    // Convert products data to select options
+    const productOptions: SelectOption[] = productsData.map(product => ({
+        value: product.id,
+        label: product.name
+    }));
+
+    // Update initial formData to include productID
     const [formData, setFormData] = useState<PolicyFormData>({
         product: "",
         productType: "",
+        productID: "", // Added productID with empty initial value
         agentEmail: "",
         sumInsured: "",
         premium: "",
-        policyType: "",
+        policyType: "Basic",
         startDate: new Date(),
         maturityDate: new Date(),
         frequency: "",
@@ -131,53 +204,56 @@ export default function NewPolicyForm({ agentValue }: { agentValue?: any }) {
         terms: false
     });
 
-    // Fetch products on component mount
+    // Update the handleSelectChange function or add a new effect to set productID when product changes
+// This should be inside the component but outside of other functions
     useEffect(() => {
-        fetchProducts();
-    }, []);
-
-    // Function to fetch products from API
-    const fetchProducts = async () => {
-        setIsLoadingProducts(true);
-        try {
-            const response = await fetch('/api/products');
-            if (!response.ok) {
-                throw new Error('Failed to fetch products');
-            }
-
-            const data = await response.json();
-
-            if (data.products && Array.isArray(data.products)) {
-                // Transform API products to SelectOption format
-                const productOptions = data.products.map((product: Product) => ({
-                    value: product.productID,
-                    label: product.productName
+        if (formData.product) {
+            const selectedProduct = productsData.find(p => p.id === formData.product);
+            if (selectedProduct) {
+                // Set the productID when a product is selected
+                setFormData(prev => ({
+                    ...prev,
+                    productID: selectedProduct.productID
                 }));
 
-                setProducts(productOptions);
-            } else {
-                // Handle empty or invalid response
-                setProducts([]);
-                console.error('Invalid products data received:', data);
-                toast({
-                    title: "Warning",
-                    description: "Could not load product list. Using default values.",
-                    variant: "destructive"
-                });
+                // Rest of the existing product selection logic...
+                const typeOptions = selectedProduct.types.map(type => ({
+                    value: `${type.plan}|${type.sumInsured}|${type.annualPayment}|${type.monthlyPayment}`,
+                    label: `Plan: ${type.plan} | SI: ${type.sumInsured} | AP: ${type.annualPayment} | MP: ${type.monthlyPayment}`
+                }));
+                setCurrentProductTypes(typeOptions);
+
+                // Reset product type when product changes
+                setFormData(prev => ({
+                    ...prev,
+                    productType: "",
+                    sumInsured: "",
+                    premium: ""
+                }));
             }
-        } catch (error) {
-            console.error('Error fetching products:', error);
-            toast({
-                title: "Error",
-                description: "Failed to load products. Please try again later.",
-                variant: "destructive"
-            });
-            // Set empty products array on error
-            setProducts([]);
-        } finally {
-            setIsLoadingProducts(false);
         }
-    };
+    }, [formData.product]);
+
+    // Effect to update sum insured and premium when product type or frequency changes
+    useEffect(() => {
+        if (formData.productType && formData.frequency) {
+            const [plan, sumInsured, annualPayment, monthlyPayment] = formData.productType.split('|');
+
+            setFormData(prev => ({
+                ...prev,
+                sumInsured: sumInsured,
+                premium: formData.frequency === 'annually' ? annualPayment : monthlyPayment
+            }));
+        } else if (formData.productType) {
+            const [plan, sumInsured] = formData.productType.split('|');
+
+            setFormData(prev => ({
+                ...prev,
+                sumInsured: sumInsured,
+                // Don't update premium if frequency not selected
+            }));
+        }
+    }, [formData.productType, formData.frequency]);
 
     // Handle standard input changes with type safety
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -274,11 +350,12 @@ export default function NewPolicyForm({ agentValue }: { agentValue?: any }) {
         return true;
     };
 
-    // Reset form data
+    // Make sure to also reset productID when resetForm is called
     const resetForm = () => {
         setFormData({
             product: "",
             productType: "",
+            productID: "", // Reset productID as well
             agentEmail: "",
             sumInsured: "",
             premium: "",
@@ -299,7 +376,8 @@ export default function NewPolicyForm({ agentValue }: { agentValue?: any }) {
             dob: null,
             terms: false
         });
-    };
+        setCurrentProductTypes([]);
+    }
 
     // Form submission handler
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -308,6 +386,8 @@ export default function NewPolicyForm({ agentValue }: { agentValue?: any }) {
         if (!validateForm()) return;
 
         setIsSubmitting(true);
+
+        console.log(formData)
 
         try {
             const response = await fetch('/api/policies', {
@@ -375,30 +455,16 @@ export default function NewPolicyForm({ agentValue }: { agentValue?: any }) {
                                             required
                                             value={formData.product}
                                             onValueChange={(value) => handleSelectChange('product', value)}
-                                            disabled={isLoadingProducts}
                                         >
                                             <SelectTrigger id="product">
-                                                {isLoadingProducts ? (
-                                                    <div className="flex items-center">
-                                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                                        <span>Loading products...</span>
-                                                    </div>
-                                                ) : (
-                                                    <SelectValue placeholder="Choose..." />
-                                                )}
+                                                <SelectValue placeholder="Choose..." />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {products.length > 0 ? (
-                                                    products.map((option) => (
-                                                        <SelectItem key={option.value} value={option.value}>
-                                                            {option.label}
-                                                        </SelectItem>
-                                                    ))
-                                                ) : (
-                                                    <SelectItem value="no-products" disabled>
-                                                        No products available
+                                                {productOptions.map((option) => (
+                                                    <SelectItem key={option.value} value={option.value}>
+                                                        {option.label}
                                                     </SelectItem>
-                                                )}
+                                                ))}
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -409,19 +475,47 @@ export default function NewPolicyForm({ agentValue }: { agentValue?: any }) {
                                             required
                                             value={formData.productType}
                                             onValueChange={(value) => handleSelectChange('productType', value)}
+                                            disabled={!formData.product}
                                         >
                                             <SelectTrigger id="productType">
                                                 <SelectValue placeholder="Choose..." />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {productTypeOptions.map((option) => (
-                                                    <SelectItem key={option.value} value={option.value}>
-                                                        {option.label}
+                                                {currentProductTypes.length > 0 ? (
+                                                    currentProductTypes.map((option) => (
+                                                        <SelectItem key={option.value} value={option.value}>
+                                                            {option.label}
+                                                        </SelectItem>
+                                                    ))
+                                                ) : (
+                                                    <SelectItem value="no-types" disabled>
+                                                        Select a product first
                                                     </SelectItem>
-                                                ))}
+                                                )}
                                             </SelectContent>
                                         </Select>
                                     </div>
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="frequency" className="mb-1 block">Frequency of Payment</Label>
+                                    <Select
+                                        name="frequency"
+                                        required
+                                        value={formData.frequency}
+                                        onValueChange={(value) => handleSelectChange('frequency', value)}
+                                    >
+                                        <SelectTrigger id="frequency">
+                                            <SelectValue placeholder="Choose..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {paymentFrequencyOptions.map((option) => (
+                                                <SelectItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
 
                                 <div>
@@ -448,6 +542,7 @@ export default function NewPolicyForm({ agentValue }: { agentValue?: any }) {
                                             value={formData.sumInsured}
                                             onChange={handleInputChange}
                                             required
+                                            readOnly={!!formData.productType}
                                         />
                                     </div>
                                     <div>
@@ -460,30 +555,31 @@ export default function NewPolicyForm({ agentValue }: { agentValue?: any }) {
                                             value={formData.premium}
                                             onChange={handleInputChange}
                                             required
+                                            readOnly={!!(formData.productType && formData.frequency)}
                                         />
                                     </div>
                                 </div>
 
-                                <div>
-                                    <Label htmlFor="policyType" className="mb-1 block">Policy Cover Type</Label>
-                                    <Select
-                                        name="policyType"
-                                        required
-                                        value={formData.policyType}
-                                        onValueChange={(value) => handleSelectChange('policyType', value)}
-                                    >
-                                        <SelectTrigger id="policyType">
-                                            <SelectValue placeholder="Choose..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {policyCoverTypeOptions.map((option) => (
-                                                <SelectItem key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                                {/*<div>*/}
+                                {/*    <Label htmlFor="policyType" className="mb-1 block">Policy Cover Type</Label>*/}
+                                {/*    <Select*/}
+                                {/*        name="policyType"*/}
+                                {/*        required*/}
+                                {/*        value={formData.policyType}*/}
+                                {/*        onValueChange={(value) => handleSelectChange('policyType', value)}*/}
+                                {/*    >*/}
+                                {/*        <SelectTrigger id="policyType">*/}
+                                {/*            <SelectValue placeholder="Choose..." />*/}
+                                {/*        </SelectTrigger>*/}
+                                {/*        <SelectContent>*/}
+                                {/*            {policyCoverTypeOptions.map((option) => (*/}
+                                {/*                <SelectItem key={option.value} value={option.value}>*/}
+                                {/*                    {option.label}*/}
+                                {/*                </SelectItem>*/}
+                                {/*            ))}*/}
+                                {/*        </SelectContent>*/}
+                                {/*    </Select>*/}
+                                {/*</div>*/}
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
@@ -502,27 +598,6 @@ export default function NewPolicyForm({ agentValue }: { agentValue?: any }) {
                                             onChange={(date) => handleDateChange('maturityDate', date || null)}
                                         />
                                     </div>
-                                </div>
-
-                                <div>
-                                    <Label htmlFor="frequency" className="mb-1 block">Frequency of Payment</Label>
-                                    <Select
-                                        name="frequency"
-                                        required
-                                        value={formData.frequency}
-                                        onValueChange={(value) => handleSelectChange('frequency', value)}
-                                    >
-                                        <SelectTrigger id="frequency">
-                                            <SelectValue placeholder="Choose..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {paymentFrequencyOptions.map((option) => (
-                                                <SelectItem key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
                                 </div>
 
                                 <div>

@@ -307,6 +307,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ heroProps }) => {
                             }
                         />
 
+                        <div className="text-end">
+                            <Link href="/update-password" className="text-orange-500 hover:text-orange-600">
+                                Forgot Password?
+                            </Link>
+                        </div>
+
                         {/* Confirm password - only for registration */}
                         {!isLoginForm && (
                             <Input

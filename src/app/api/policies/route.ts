@@ -64,6 +64,7 @@ interface FormData {
     policyType?: string;
     startDate?: string;
     maturityDate?: string;
+    productID?: string;
     frequency?: string;
     surname?: string;
     otherNames?: string;
@@ -337,7 +338,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 },
                 "branchID": "001",
                 agentID: accessToken.agentID,//"G/A/410000808",
-                productID: formData.product || "",
+                productID: formData.productID || "",
                 startDate: formData.startDate || new Date().toISOString(),
                 endDate: formData.maturityDate || new Date().toISOString(),
                 sumInsured: parseFloat(formData.sumInsured || "0"),
@@ -366,21 +367,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                     "kycIssueDate": "2025-04-22T12:44:30.896Z",
                     "kycExpiryDate": "2025-04-22T12:44:30.896Z",
                     "nextOfKin": {
-                        "title": "string",
-                        "lastName": "string",
-                        "firstName": "string",
-                        "otherName": "string",
+                        "title": "Mr",
+                        "lastName": "Akinwale",
+                        "firstName": "Tunde",
+                        "otherName": "Michael",
                         "gender": "MALE",
-                        "email": "user@example.com",
-                        "address": "string",
-                        "phoneLine1": "string",
-                        "phoneLine2": "string"
+                        "email": "tunde.akinwale@example.com",
+                        "address": "15 Palm Avenue, Ikeja, Lagos",
+                        "phoneLine1": "08051234567",
+                        "phoneLine2": "014556677"
                     }
                 },
                 "transDate": "2025-04-22T12:44:30.896Z",
                 "agentID": accessToken.agentID, //"string",
                 //"customerID": "01082204959",
-                productID: formData.product || "",
+                productID: formData.productID || "",
                 startDate: formData.startDate || new Date().toISOString(),
                 "maturityDate": formData.maturityDate || new Date().toISOString(),
                 "frequencyOfPayment": "string",
